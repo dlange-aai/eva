@@ -409,6 +409,18 @@ class TestRunConfig:
                 r"model\.pipeline\.tts\s+Field required",
             ),
             (
+                {"EVA_MODEL__LLM": "gpt-5.2"},
+                r"model\.pipeline\.stt\s+Field required"
+                r"(?s:.+)"
+                r"model\.pipeline\.tts\s+Field required",
+            ),
+            (
+                {"EVA_MODEL__LLM": "gpt-5.2", "EVA_MODEL__STT": "deepgram", "EVA_MODEL__TTS": "cartesia"},
+                r'model\.stt_params\s+"api_key" and "model" required in EVA_MODEL__STT_PARAMS for deepgram STT'
+                r"(?s:.+)"
+                r'model\.tts_params\s+"api_key" and "model" required in EVA_MODEL__TTS_PARAMS for cartesia TTS',
+            ),
+            (
                 {"EVA_MODEL__AUDIO_LLM": "ultravox"},
                 r"model\.audio_llm\.tts\s+Field required",
             ),
@@ -422,6 +434,8 @@ class TestRunConfig:
             "Mixed all three",
             "LLM without STT",
             "LLM without TTS",
+            "LLM without STT and TTS",
+            "LLM without STT params and TTS params ",
             "Audio LLM without TTS",
         ),
     )

@@ -14,6 +14,7 @@ and explicit kwargs.  Scripts opt in to ``.env`` and/or CLI via
 
 import copy
 import logging
+from collections.abc import Iterator
 from datetime import UTC, datetime
 from enum import StrEnum
 from pathlib import Path
@@ -27,11 +28,13 @@ from pydantic import (
     Discriminator,
     Field,
     Tag,
+    ValidationError,
     computed_field,
     field_serializer,
     field_validator,
     model_validator,
 )
+from pydantic_core import InitErrorDetails, PydanticCustomError
 from pydantic_settings import BaseSettings, CliSuppress, SettingsConfigDict
 
 from eva.models.provenance import RunProvenance
@@ -702,16 +705,17 @@ class RunConfig(BaseSettings):
     @model_validator(mode="after")
     def _check_companion_services(self) -> "RunConfig":
         """Ensure required companion services are set for each pipeline mode."""
-        required_keys = ["api_key", "model"]
+        errors: list[InitErrorDetails] = []
         if isinstance(self.model, PipelineConfig):
-            self._validate_service_params("STT", self.model.stt, required_keys, self.model.stt_params)
-            self._validate_service_params("TTS", self.model.tts, required_keys, self.model.tts_params)
+            errors.extend(self._validate_service_params("STT", self.model.stt, self.model.stt_params))
+            errors.extend(self._validate_service_params("TTS", self.model.tts, self.model.tts_params))
         elif isinstance(self.model, AudioLLMConfig):
-            self._validate_service_params("TTS", self.model.tts, required_keys, self.model.tts_params)
-            self._validate_service_params("audio_llm", self.model.audio_llm, required_keys, self.model.audio_llm_params)
+            errors.extend(self._validate_service_params("TTS", self.model.tts, self.model.tts_params))
+            errors.extend(self._validate_service_params("AUDIO_LLM", self.model.audio_llm, self.model.audio_llm_params))
         elif isinstance(self.model, SpeechToSpeechConfig):
-            # api_key is required, some s2s services don't require model
-            self._validate_service_params("S2S", self.model.s2s, required_keys, self.model.s2s_params)
+            errors.extend(self._validate_service_params("S2S", self.model.s2s, self.model.s2s_params))
+        if errors:
+            raise ValidationError.from_exception_data(title=type(self).__name__, line_errors=errors)
         return self
 
     @model_validator(mode="after")
@@ -723,17 +727,20 @@ class RunConfig(BaseSettings):
 
     @classmethod
     def _validate_service_params(
-        cls, service: str, provider: str, required_keys: list[str], params: dict[str, Any]
-    ) -> None:
+        cls, service: str, provider: str, params: dict[str, Any]
+    ) -> Iterator[InitErrorDetails]:
         """Validate that STT/TTS params contain required keys."""
-        missing = [key for key in required_keys if key not in params]
+        required_keys = ["api_key", "model"]
+        missing = [key for key in required_keys if key not in params] if params else required_keys
         if missing:
             missing_str = " and ".join(f'"{k}"' for k in missing)
             env_var = f"EVA_MODEL__{service}_PARAMS"
-            raise ValueError(
+            message = (
                 f"{missing_str} required in {env_var} for {provider} {service}. "
                 f'Example: {env_var}=\'{{"api_key": "your_key", "model": "your_model"}}\''
             )
+            loc = ("model", f"{service.lower()}_params")
+            yield InitErrorDetails(type=PydanticCustomError("missing_service_params", message), loc=loc, input=params)
 
     @model_validator(mode="before")
     @classmethod
