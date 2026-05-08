@@ -200,7 +200,7 @@ class SpeechToSpeechConfig(BaseModel):
                 "s2s": _param_alias(self.s2s_params),
                 "stt": "scribe_v2.2_realtime",
                 "llm": "gemini-3-flash-preview",
-                "tts": "v3-conversational",
+                "tts": "eleven_flash_v2",
             }
         return {"s2s": _param_alias(self.s2s_params)}
 
