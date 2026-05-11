@@ -178,8 +178,8 @@ export function MetricsExplorer() {
             Agreement between our automated judges and human linguist annotators on held-out validation samples, as reported in the paper (Table 14). Quadratic-weighted Cohen's κ is used for the ordinal metrics; unweighted κ for the binary Speech Fidelity metric. Linguist–judge κ meets or exceeds the linguist–linguist agreement ceiling on every metric.
           </p>
         </div>
-        <div className="rounded-xl border border-border-default bg-bg-secondary overflow-hidden">
-          <table className="w-full text-sm">
+        <div className="rounded-xl border border-border-default bg-bg-secondary overflow-x-auto">
+          <table className="w-full text-sm min-w-[640px]">
             <thead className="bg-bg-tertiary">
               <tr>
                 <th className="text-left px-4 py-2.5 text-text-secondary font-medium">Metric</th>
