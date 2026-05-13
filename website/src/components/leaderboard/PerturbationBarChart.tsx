@@ -1,4 +1,5 @@
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ErrorBar, ReferenceLine, LabelList, Customized } from 'recharts';
+import type React from 'react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ErrorBar, ReferenceLine, Customized } from 'recharts';
 import type { SystemStats, DomainOrPooled } from '../../data/leaderboardData';
 import { getPertValue, perturbations, perturbationLabels, groupedSystems } from '../../data/leaderboardData';
 import { useThemeColors } from '../../styles/theme';
@@ -75,6 +76,14 @@ function colorFor(pert: string, colors: ReturnType<typeof useThemeColors>): stri
   return colors.accent.blue;
 }
 
+function tierLabel(p: number | null | undefined): string {
+  if (p == null || !Number.isFinite(p)) return '';
+  if (p < 0.001) return '***';
+  if (p < 0.01) return '**';
+  if (p < 0.05) return '*';
+  return '';
+}
+
 export function PerturbationBarChart({ metric, metricLabel, systems, domain }: PerturbationBarChartProps) {
   const colors = useThemeColors();
 
@@ -88,10 +97,11 @@ export function PerturbationBarChart({ metric, metricLabel, systems, domain }: P
     for (const p of perturbations) {
       const v = getPertValue(s, metric, p, domain);
       if (v) {
+        const label = tierLabel(v.corrected_p);
         row[`${p}_point`] = v.point;
         row[`${p}_err`] = [v.point - v.ci_lower, v.ci_upper - v.point];
-        row[`${p}_sig`] = !!v.reject;
-        row[`${p}_sig_label`] = v.reject ? '*' : '';
+        row[`${p}_sig`] = label !== '';
+        row[`${p}_sig_label`] = label;
         any = true;
       } else {
         row[`${p}_point`] = null;
@@ -191,15 +201,57 @@ export function PerturbationBarChart({ metric, metricLabel, systems, domain }: P
               {perturbations.map((p) => (
                 <Bar key={p} dataKey={`${p}_point`} fill={colorFor(p, colors)} radius={[2, 2, 0, 0]}>
                   <ErrorBar dataKey={`${p}_err`} direction="y" width={4} strokeWidth={1} stroke={colors.text.muted} />
-                  <LabelList
-                    dataKey={`${p}_sig_label`}
-                    position="top"
-                    fill={colors.accent.amber}
-                    fontSize={14}
-                    fontWeight={700}
-                  />
                 </Bar>
               ))}
+              <Customized
+                component={(props: unknown) => {
+                  const p = props as {
+                    xAxisMap?: Record<string, { scale?: { (v: string): number | undefined; bandwidth?: () => number } }>;
+                    yAxisMap?: Record<string, { scale?: (v: number) => number | undefined }>;
+                  };
+                  const xMap = p.xAxisMap;
+                  const yMap = p.yAxisMap;
+                  if (!xMap || !yMap) return null;
+                  const xAxis = Object.values(xMap)[0];
+                  const yAxis = Object.values(yMap)[0];
+                  const xScale = xAxis?.scale;
+                  const yScale = yAxis?.scale;
+                  if (!xScale || typeof xScale.bandwidth !== 'function' || !yScale) return null;
+                  const bandwidth = xScale.bandwidth();
+                  const n = perturbations.length;
+                  const elements: React.ReactElement[] = [];
+                  data.forEach((row) => {
+                    const bandStart = xScale(row.name as string);
+                    if (bandStart == null) return;
+                    perturbations.forEach((pert, i) => {
+                      const label = row[`${pert}_sig_label`] as string | undefined;
+                      if (!label) return;
+                      const point = row[`${pert}_point`] as number | null | undefined;
+                      const err = row[`${pert}_err`] as [number, number] | undefined;
+                      if (point == null || !err) return;
+                      const cx = bandStart + (bandwidth * (i + 0.5)) / n;
+                      const isPos = point >= 0;
+                      const yTip = isPos
+                        ? (yScale(point + err[1]) ?? 0) - 6
+                        : (yScale(point - err[0]) ?? 0) + 14;
+                      elements.push(
+                        <text
+                          key={`sig-${row.name}-${pert}`}
+                          x={cx}
+                          y={yTip}
+                          fill={colors.accent.amber}
+                          fontSize={14}
+                          fontWeight={700}
+                          textAnchor="middle"
+                        >
+                          {label}
+                        </text>
+                      );
+                    });
+                  });
+                  return <g>{elements}</g>;
+                }}
+              />
             </BarChart>
           </ResponsiveContainer>
         </div>
