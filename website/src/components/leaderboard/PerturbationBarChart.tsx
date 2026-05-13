@@ -230,14 +230,22 @@ export function PerturbationBarChart({ metric, metricLabel, systems, domain }: P
                       const err = row?.[`${p}_err`] as [number, number] | undefined;
                       if (point == null || !err) return null;
                       const cx = cp.x + cp.width / 2;
+                      // Derive px-per-data-unit from this bar's own geometry — exact,
+                      // immune to chart-layout details. Fall back to the chart-level
+                      // constant only when the bar has near-zero value.
+                      const pxPerUnit = Math.abs(point) > 1e-6
+                        ? cp.height / Math.abs(point)
+                        : Y_PX_PER_UNIT;
+                      // Anchor everything to the lower CI cap's pixel position, then
+                      // place the star below that. For positive bars where the lower
+                      // CI cap can fall inside the visible bar, drop the star below
+                      // the bar's bottom (zero line) instead so it never overlaps.
                       const isPos = point >= 0;
-                      // For positive bars cp.y is the bar's top (at point value);
-                      // upper CI extends err[1] units above -> err[1] * pxPerUnit pixels.
-                      // For negative bars cp.y is at the zero line, cp.height extends down;
-                      // lower CI cap is at cp.y + cp.height + err[0] * pxPerUnit.
-                      const yPos = isPos
-                        ? cp.y - err[1] * Y_PX_PER_UNIT - 6
-                        : cp.y + cp.height + err[0] * Y_PX_PER_UNIT + 14;
+                      const lowerCapPx = isPos
+                        ? cp.y + err[0] * pxPerUnit
+                        : cp.y + cp.height + err[0] * pxPerUnit;
+                      const barBottomPx = cp.y + cp.height;
+                      const yPos = Math.max(lowerCapPx, barBottomPx) + 14;
                       return (
                         <text
                           x={cx}
