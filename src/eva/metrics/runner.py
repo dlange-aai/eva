@@ -361,11 +361,12 @@ class MetricsRunner:
         # Determine which metrics actually need computation
         requested_names = {m.name for m in self.metrics}
         if self._is_rerun_mode:
-            # Rerun mode: only recompute filter metrics that haven't already succeeded
+            # Rerun mode: only recompute filter metrics that haven't already succeeded.
             metrics_to_compute = {
                 name
                 for name in self.record_metric_filter[record_id]
-                if name in requested_names and (name not in existing_metrics or existing_metrics[name].error)
+                if name in requested_names
+                and (name not in existing_metrics or existing_metrics[name].error is not None)
             }
         else:
             # Normal mode: compute all requested if force_rerun, otherwise only missing
@@ -456,11 +457,11 @@ class MetricsRunner:
                 )
                 return metric.name, score
             except Exception as e:
-                logger.error(f"[{record_id}] Metric {metric.name} failed: {e}")
+                logger.exception(f"[{record_id}] Metric {metric.name} failed")
                 return metric.name, MetricScore(
                     name=metric.name,
                     score=0.0,
-                    error=str(e),
+                    error=str(e) or repr(e),  # Memory Errors need repr(e)
                 )
 
         # Filter out metrics incompatible with the pipeline type
