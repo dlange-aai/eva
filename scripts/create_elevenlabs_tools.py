@@ -142,7 +142,7 @@ def main():
     client = ElevenLabs()
     created_tool_ids: list[str] = []
     for tool in tools:
-        request_model = convert_tool(tool)
+        request_model = convert_tool(tool, pre_tool_speech=args.pre_tool_speech, execution_mode=args.execution_mode)
         tool_name = request_model.tool_config.name
         print(f"Creating tool: {tool_name}...", end=" ")
         result = client.conversational_ai.tools.create(request=request_model)
