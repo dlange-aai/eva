@@ -27,7 +27,6 @@ from eva.assistant.audio_bridge import (
     sync_buffer_to_position,
 )
 from eva.assistant.base_server import INITIAL_MESSAGE, AbstractAssistantServer
-from eva.models.config import SpeechToSpeechConfig
 from eva.utils.logging import get_logger
 from eva.utils.prompt_manager import PromptManager
 
@@ -104,12 +103,7 @@ class OpenAIRealtimeAssistantServer(AbstractAssistantServer):
         # User speech start timestamp from audio_interface (source of truth)
         self._audio_interface_speech_start_ts: str | None = None
 
-        if isinstance(self.pipeline_config, SpeechToSpeechConfig):
-            s2s_params = self.pipeline_config.s2s_params
-        else:
-            logger.error("Pipeline config is not SpeechToSpeechConfig")
-            return
-
+        s2s_params = self.pipeline_config.s2s_params or {}
         self._model: str = s2s_params["model"]
 
     async def start(self) -> None:
@@ -205,40 +199,44 @@ class OpenAIRealtimeAssistantServer(AbstractAssistantServer):
             logger.info(f"Starting OpenAI Realtime session (model={self._model})")
             async with client.realtime.connect(model=self._model) as conn:
                 # Configure the session
-                await conn.session.update(
-                    session={
-                        "type": "realtime",
-                        "output_modalities": ["audio"],
-                        "instructions": self._system_prompt,
-                        "audio": {
-                            "output": {
-                                "voice": self.pipeline_config.s2s_params.get("voice", "marin"),
-                                "format": {"type": "audio/pcm", "rate": 24000},
+                session_config: dict[str, Any] = {
+                    "type": "realtime",
+                    "output_modalities": ["audio"],
+                    "instructions": self._system_prompt,
+                    "audio": {
+                        "output": {
+                            "voice": self.pipeline_config.s2s_params.get("voice", "marin"),
+                            "format": {"type": "audio/pcm", "rate": 24000},
+                        },
+                        "input": {
+                            "format": {"type": "audio/pcm", "rate": 24000},
+                            "turn_detection": {
+                                "type": self.pipeline_config.s2s_params.get("vad_settings", {}).get(
+                                    "type", "server_vad"
+                                ),
+                                "threshold": self.pipeline_config.s2s_params.get("vad_settings", {}).get(
+                                    "threshold", 0.5
+                                ),
+                                "prefix_padding_ms": self.pipeline_config.s2s_params.get("vad_settings", {}).get(
+                                    "prefix_padding_ms", 300
+                                ),
+                                "silence_duration_ms": self.pipeline_config.s2s_params.get("vad_settings", {}).get(
+                                    "silence_duration_ms", 200
+                                ),
                             },
-                            "input": {
-                                "format": {"type": "audio/pcm", "rate": 24000},
-                                "turn_detection": {
-                                    "type": self.pipeline_config.s2s_params.get("vad_settings", {}).get(
-                                        "type", "server_vad"
-                                    ),
-                                    "threshold": self.pipeline_config.s2s_params.get("vad_settings", {}).get(
-                                        "threshold", 0.5
-                                    ),
-                                    "prefix_padding_ms": self.pipeline_config.s2s_params.get("vad_settings", {}).get(
-                                        "prefix_padding_ms", 300
-                                    ),
-                                    "silence_duration_ms": self.pipeline_config.s2s_params.get("vad_settings", {}).get(
-                                        "silence_duration_ms", 200
-                                    ),
-                                },
-                                "transcription": {
-                                    "model": self.pipeline_config.s2s_params.get("transcription_model", "whisper-1")
-                                },
+                            "transcription": {
+                                "model": self.pipeline_config.s2s_params.get("transcription_model", "whisper-1")
                             },
                         },
-                        "tools": self._realtime_tools,
-                    }
-                )
+                    },
+                    "tools": self._realtime_tools,
+                }
+
+                reasoning_effort = self.pipeline_config.s2s_params.get("reasoning_effort")
+                if reasoning_effort:
+                    session_config["reasoning"] = {"effort": reasoning_effort}
+
+                await conn.session.update(session=session_config)
 
                 # Trigger the initial greeting
                 await conn.conversation.item.create(

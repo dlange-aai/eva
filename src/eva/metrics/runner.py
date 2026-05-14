@@ -16,6 +16,7 @@ from eva.metrics.legacy_aliases import rename_metric_keys
 from eva.metrics.processor import MetricsContextProcessor
 from eva.metrics.registry import MetricRegistry, get_global_registry
 from eva.metrics.utils import direction_for_sub_metric
+from eva.metrics.versioning import _CURRENT_METRIC_VERSION
 from eva.models.config import PipelineType, get_pipeline_type
 from eva.models.record import EvaluationRecord
 from eva.models.results import ConversationResult, MetricScore, PassAtKResult, RecordMetrics
@@ -149,7 +150,7 @@ class MetricsRunner:
 
         config_data = json.loads(config_path.read_text())
 
-        # Determine pipeline type from config (fallback to False for legacy runs)
+        # Determine pipeline type from config
         model_data = config_data.get("model", {})
         self._pipeline_type = get_pipeline_type(model_data) if model_data else PipelineType.CASCADE
 
@@ -239,7 +240,7 @@ class MetricsRunner:
         for record_id, record_dir in self._discover_record_dirs(self.run_dir, self.record_ids):
             result_path = record_dir / "result.json"
             if not result_path.exists():
-                logger.info(f"process_records: {record_id} has no result.json, skipping")
+                logger.debug(f"process_records: {record_id} has no result.json, skipping")
                 continue
             try:
                 result_data = json.loads(result_path.read_text())
@@ -331,6 +332,12 @@ class MetricsRunner:
         - Normal mode: only computes metrics not yet present on disk.
         - Rerun mode: only recomputes metrics that failed; never reruns already-succeeded metrics.
         """
+        # If the conversation worker never produced result.json, the record cannot
+        # be evaluated — skip cleanly instead of letting _load_context raise.
+        if not (record_dir / "result.json").exists():
+            logger.info(f"run_and_save_record: {record_id} has no result.json, skipping")
+            return None
+
         metrics_path = record_dir / "metrics.json"
 
         # Read existing metrics from disk if available
@@ -361,11 +368,12 @@ class MetricsRunner:
         # Determine which metrics actually need computation
         requested_names = {m.name for m in self.metrics}
         if self._is_rerun_mode:
-            # Rerun mode: only recompute filter metrics that haven't already succeeded
+            # Rerun mode: only recompute filter metrics that haven't already succeeded.
             metrics_to_compute = {
                 name
                 for name in self.record_metric_filter[record_id]
-                if name in requested_names and (name not in existing_metrics or existing_metrics[name].error)
+                if name in requested_names
+                and (name not in existing_metrics or existing_metrics[name].error is not None)
             }
         else:
             # Normal mode: compute all requested if force_rerun, otherwise only missing
@@ -447,6 +455,9 @@ class MetricsRunner:
         # Create tasks for all metrics
         async def compute_metric(metric: BaseMetric) -> tuple[str, MetricScore]:
             """Compute a single metric and handle errors."""
+            # Each gather() task gets its own contextvar snapshot, so this set is
+            # isolated from sibling/parent tasks — no reset needed.
+            _CURRENT_METRIC_VERSION.set(metric.version)
             try:
                 logger.info(f"[{record_id}] Starting metric: {metric.name}")
                 score = await metric.compute(context)
@@ -456,11 +467,11 @@ class MetricsRunner:
                 )
                 return metric.name, score
             except Exception as e:
-                logger.error(f"[{record_id}] Metric {metric.name} failed: {e}")
+                logger.exception(f"[{record_id}] Metric {metric.name} failed")
                 return metric.name, MetricScore(
                     name=metric.name,
                     score=0.0,
-                    error=str(e),
+                    error=str(e) or repr(e),  # Memory Errors need repr(e)
                 )
 
         # Filter out metrics incompatible with the pipeline type
