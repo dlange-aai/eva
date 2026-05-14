@@ -1,4 +1,4 @@
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ErrorBar, ReferenceLine, Customized, LabelList, useYAxisScale } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ErrorBar, ReferenceLine, Customized, LabelList, useXAxisScale, useYAxisScale } from 'recharts';
 import type { SystemStats, DomainOrPooled } from '../../data/leaderboardData';
 import { getPertValue, perturbations, perturbationLabels, groupedSystems } from '../../data/leaderboardData';
 import { useThemeColors } from '../../styles/theme';
@@ -83,6 +83,57 @@ function tierLabel(p: number | null | undefined): string {
   return '';
 }
 
+/** Renders dashed vertical separators between architecture groups. Uses the
+ *  XAxis scale hook to look up category positions; falls back to interpolating
+ *  the gap between adjacent left-edge positions when bandwidth/step methods
+ *  aren't exposed by recharts. */
+function SeparatorsLayer({
+  separators,
+  strokeColor,
+}: {
+  separators: { name: string; prevName: string }[];
+  strokeColor: string;
+}) {
+  const xScale = useXAxisScale() as
+    | (((v: string) => number | undefined) & {
+        bandwidth?: () => number;
+        step?: () => number;
+      })
+    | undefined;
+  const yScale = useYAxisScale() as ((v: number) => number | undefined) | undefined;
+  if (!xScale || !yScale) return null;
+  const top = yScale(0.5);
+  const bottom = yScale(-0.5);
+  if (top == null || bottom == null) return null;
+  const bandwidth = typeof xScale.bandwidth === 'function' ? xScale.bandwidth() : undefined;
+  return (
+    <g>
+      {separators.map(({ name, prevName }) => {
+        const curr = xScale(name);
+        const prev = xScale(prevName);
+        if (curr == null || prev == null) return null;
+        // Place line at the center of the gap between the previous band's
+        // right edge and the current band's left edge.
+        const step = curr - prev;
+        const bw = bandwidth ?? step * 0.9;
+        const x = curr - (step - bw) / 2;
+        return (
+          <line
+            key={`sep-${name}`}
+            x1={x}
+            x2={x}
+            y1={top}
+            y2={bottom}
+            stroke={strokeColor}
+            strokeDasharray="4 4"
+            strokeOpacity={0.7}
+          />
+        );
+      })}
+    </g>
+  );
+}
+
 /** Renders a single significance marker above a bar+CI structure. Uses the
  *  YAxis scale hook so the y position is exact regardless of chart layout. */
 function StarMark({
@@ -159,9 +210,11 @@ export function PerturbationBarChart({ metric, metricLabel, systems, domain }: P
   // Compute group boundary indices: positions where the type changes from the previous row.
   // The ReferenceLine x value is the `name` of the first row in the new group; recharts will
   // draw the line at that category's tick.
-  const separators: string[] = [];
+  const separators: { name: string; prevName: string }[] = [];
   for (let i = 1; i < data.length; i++) {
-    if (data[i].type !== data[i - 1].type) separators.push(data[i].name);
+    if (data[i].type !== data[i - 1].type) {
+      separators.push({ name: data[i].name, prevName: data[i - 1].name });
+    }
   }
 
   const minWidth = Math.max(720, data.length * 80);
@@ -199,43 +252,9 @@ export function PerturbationBarChart({ metric, metricLabel, systems, domain }: P
               />
               <ReferenceLine y={0} stroke={colors.text.muted} />
               <Customized
-                component={(props: unknown) => {
-                  const p = props as {
-                    xAxisMap?: Record<string, { scale?: { (v: string): number | undefined; bandwidth?: () => number; step?: () => number } }>;
-                    offset?: { top?: number; height?: number };
-                  };
-                  const xMap = p.xAxisMap;
-                  if (!xMap) return null;
-                  const xAxis = Object.values(xMap)[0];
-                  const scale = xAxis?.scale;
-                  if (!scale || typeof scale.bandwidth !== 'function') return null;
-                  const top = p.offset?.top ?? 0;
-                  const height = p.offset?.height ?? 0;
-                  const bandwidth = scale.bandwidth();
-                  const step = typeof scale.step === 'function' ? scale.step() : bandwidth;
-                  const gapHalf = (step - bandwidth) / 2;
-                  return (
-                    <g>
-                      {separators.map((name) => {
-                        const start = scale(name);
-                        if (start == null) return null;
-                        const x = start - gapHalf;
-                        return (
-                          <line
-                            key={`sep-${name}`}
-                            x1={x}
-                            x2={x}
-                            y1={top}
-                            y2={top + height}
-                            stroke={colors.text.muted}
-                            strokeDasharray="4 4"
-                            strokeOpacity={0.6}
-                          />
-                        );
-                      })}
-                    </g>
-                  );
-                }}
+                component={() => (
+                  <SeparatorsLayer separators={separators} strokeColor={colors.text.secondary} />
+                )}
               />
               <Tooltip content={<CustomTooltip />} cursor={{ fill: colors.bg.hover, opacity: 0.3 }} />
               {perturbations.map((p) => (
