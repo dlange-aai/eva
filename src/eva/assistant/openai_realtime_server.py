@@ -76,6 +76,9 @@ class OpenAIRealtimeAssistantServer(AbstractAssistantServer):
     (24 kHz PCM16 base64).
     """
 
+    _service_name: str = "OpenAI Realtime"
+    _metrics_processor_name: str = "openai_realtime"
+
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
@@ -142,7 +145,7 @@ class OpenAIRealtimeAssistantServer(AbstractAssistantServer):
         while not self._server.started:
             await asyncio.sleep(0.01)
 
-        logger.info(f"OpenAI Realtime server started on ws://localhost:{self.port}")
+        logger.info(f"{self._service_name} server started on ws://localhost:{self.port}")
 
     async def _shutdown(self) -> None:
         """Stop the OpenAI Realtime server."""
@@ -167,7 +170,7 @@ class OpenAIRealtimeAssistantServer(AbstractAssistantServer):
             self._server = None
             self._server_task = None
 
-        logger.info(f"OpenAI Realtime server stopped on port {self.port}")
+        logger.info(f"{self._service_name} server stopped on port {self.port}")
 
     async def _handle_session(self, websocket: WebSocket) -> None:
         """Handle a single WebSocket session.
@@ -181,7 +184,7 @@ class OpenAIRealtimeAssistantServer(AbstractAssistantServer):
         5. On tool call: execute via self.tool_handler, send result back
         6. On audio: decode base64 PCM16 -> record -> encode mulaw -> send to Twilio WS
         """
-        logger.info("Client connected to OpenAI Realtime server")
+        logger.info(f"Client connected to {self._service_name} server")
 
         # Reset per-session state
         self._user_turn = None
@@ -192,11 +195,11 @@ class OpenAIRealtimeAssistantServer(AbstractAssistantServer):
 
         api_key = self.pipeline_config.s2s_params.get("api_key")
         if not api_key:
-            raise ValueError("API key required for openai realtime")
+            raise ValueError(f"API key required for {self._service_name}")
         client = AsyncOpenAI(api_key=api_key)
 
         try:
-            logger.info(f"Starting OpenAI Realtime session (model={self._model})")
+            logger.info(f"Starting {self._service_name} session (model={self._model})")
             async with client.realtime.connect(model=self._model) as conn:
                 # Configure the session
                 session_config: dict[str, Any] = {
@@ -278,7 +281,7 @@ class OpenAIRealtimeAssistantServer(AbstractAssistantServer):
         except Exception as e:
             logger.error(f"OpenAI Realtime session error: {e}", exc_info=True)
         finally:
-            logger.info("Client disconnected from OpenAI Realtime server")
+            logger.info(f"Client disconnected from {self._service_name} server")
 
     # ── Audio output pacer (OpenAI -> Twilio WS at real-time rate) ───
 
@@ -404,10 +407,10 @@ class OpenAIRealtimeAssistantServer(AbstractAssistantServer):
 
         match event_type:
             case "session.created":
-                logger.info("OpenAI Realtime session created")
+                logger.info(f"{self._service_name} session created")
 
             case "session.updated":
-                logger.debug("OpenAI Realtime session updated")
+                logger.debug(f"{self._service_name} session updated")
 
             case "input_audio_buffer.speech_started":
                 await self._on_speech_started(event)
@@ -452,7 +455,7 @@ class OpenAIRealtimeAssistantServer(AbstractAssistantServer):
 
             case "error":
                 error_data = getattr(event, "error", None)
-                logger.error(f"OpenAI Realtime error: {error_data}")
+                logger.error(f"{self._service_name} error: {error_data}")
 
             case _:
                 logger.debug(f"Unhandled OpenAI event: {event_type}")
@@ -660,7 +663,7 @@ class OpenAIRealtimeAssistantServer(AbstractAssistantServer):
                 input_tokens = getattr(usage, "input_tokens", 0) or 0
                 output_tokens = getattr(usage, "output_tokens", 0) or 0
                 self._metrics_log.write_token_usage(
-                    processor="openai_realtime",
+                    processor=self._metrics_processor_name,
                     model=self._model,
                     prompt_tokens=input_tokens,
                     completion_tokens=output_tokens,
