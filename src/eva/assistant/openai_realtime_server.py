@@ -172,6 +172,17 @@ class OpenAIRealtimeAssistantServer(AbstractAssistantServer):
 
         logger.info(f"{self._service_name} server stopped on port {self.port}")
 
+    def _create_client(self) -> AsyncOpenAI:
+        """Construct the AsyncOpenAI client used for the realtime connection.
+
+        Subclasses override to point at a different base_url (e.g. xAI's
+        realtime endpoint, which is OpenAI-Realtime-API-compatible).
+        """
+        api_key = self.pipeline_config.s2s_params.get("api_key")
+        if not api_key:
+            raise ValueError(f"API key required for {self._service_name}")
+        return AsyncOpenAI(api_key=api_key)
+
     async def _handle_session(self, websocket: WebSocket) -> None:
         """Handle a single WebSocket session.
 
@@ -193,10 +204,7 @@ class OpenAIRealtimeAssistantServer(AbstractAssistantServer):
         self._user_speaking = False
         self._bot_speaking = False
 
-        api_key = self.pipeline_config.s2s_params.get("api_key")
-        if not api_key:
-            raise ValueError(f"API key required for {self._service_name}")
-        client = AsyncOpenAI(api_key=api_key)
+        client = self._create_client()
 
         try:
             logger.info(f"Starting {self._service_name} session (model={self._model})")
