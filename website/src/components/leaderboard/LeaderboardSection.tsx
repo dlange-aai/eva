@@ -27,9 +27,9 @@ const paretoInsights = [
       'Peak (pass@k) and reliable (pass^k) performance diverge substantially: the median pass@k–pass^k gap is 0.44 on EVA-A and 0.24 on EVA-X, indicating single-trial scores systematically overstate deployment-grade reliability.',
   },
   {
-    title: 'Both S2S and cascade systems sit on the Pareto frontier',
+    title: 'Architecture and SDK implementation both shape results',
     description:
-      'The Pareto frontier spans both architectures. Low-latency cascades that integrate provider SDKs directly — avoiding the overhead of standalone STT/TTS pipelines — achieve turn-taking scores competitive with S2S models, while higher-accuracy cascades anchor the right side of the frontier.',
+      'The Pareto frontier spans both S2S and cascade architectures. Cascade results vary significantly depending on the SDK implementation used, with some cascade configurations achieving turn-taking scores competitive with S2S models. This suggests that integration choices can matter as much as the underlying models.',
   },
 ];
 
