@@ -18,7 +18,7 @@ from elevenlabs.conversational_ai.conversation import (
     ConversationInitiationData,
 )
 
-from eva.models.config import PerturbationConfig
+from eva.models.config import LANGUAGE_DISPLAY_NAMES, LanguageType, PerturbationConfig
 from eva.user_simulator.audio_interface import ELEVENLABS_OUTPUT_RATE, BotToBotAudioInterface
 from eva.user_simulator.event_logger import ElevenLabsEventLogger
 from eva.user_simulator.perturbation import AudioPerturbator
@@ -190,9 +190,9 @@ class UserSimulator:
             # Append a language directive to the persona so the simulator speaks
             # in the target language even if its voice agent could default to English.
             if self._language and self._language.lower() not in {"en", "english"}:
+                lang_display = LANGUAGE_DISPLAY_NAMES[LanguageType(self._language)]
                 user_persona = (
-                    f"{user_persona}\n\nSpeak ONLY in {self._language}. Do not switch to "
-                    "English even if the agent does."
+                    f"{user_persona}\n\nSpeak ONLY in {lang_display}. Do not switch to English even if the agent does."
                 )
 
             # Derive domain from agent_id (e.g. "agent_airline" → "airline")
