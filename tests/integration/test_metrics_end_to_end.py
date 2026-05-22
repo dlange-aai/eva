@@ -24,7 +24,10 @@ def mock_dataset():
     """Create a dataset with one record matching the real artifacts."""
     record = EvaluationRecord(
         id=RECORD_ID,
-        user_goal={"information_required": {"Passenger first name": "<FIRST_NAME>", "Passenger last name": "<LAST_NAME>"}, "task": "Change flight to March 25th"},
+        user_goal={
+            "information_required": {"Passenger first name": "<FIRST_NAME>", "Passenger last name": "<LAST_NAME>"},
+            "task": "Change flight to March 25th",
+        },
         user_config={
             "user_persona": "Traveler rebooking a flight",
             "gender": "woman",

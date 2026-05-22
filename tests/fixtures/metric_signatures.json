@@ -1,13 +1,13 @@
 {
   "AgentSpeechFidelityMetric": {
     "name": "agent_speech_fidelity",
-    "prompt_hash": "864be78919d2",
+    "prompt_hash": "eae9bd992999",
     "source_hash": "77743114e9b0",
     "version": "v0.1"
   },
   "AgentSpeechFidelityS2SMetric": {
     "name": "agent_speech_fidelity",
-    "prompt_hash": "864be78919d2",
+    "prompt_hash": "eae9bd992999",
     "source_hash": "5b3deb4968cd",
     "version": "v0.1"
   },
@@ -19,7 +19,7 @@
   },
   "ConcisenessJudgeMetric": {
     "name": "conciseness",
-    "prompt_hash": "5d033338d36a",
+    "prompt_hash": "5e6bdd0dd2d4",
     "source_hash": "cd0ea09a9613",
     "version": "v0.1"
   },
@@ -43,7 +43,7 @@
   },
   "FaithfulnessJudgeMetric": {
     "name": "faithfulness",
-    "prompt_hash": "c455aa09587a",
+    "prompt_hash": "e36ecf4a01e3",
     "source_hash": "82ab3e3244f5",
     "version": "v0.2"
   },
@@ -56,12 +56,12 @@
   "STTWERMetric": {
     "name": "stt_wer",
     "prompt_hash": null,
-    "source_hash": "2c9f52bbbbcc",
-    "version": "v0.2"
+    "source_hash": "4094b78bfb65",
+    "version": "v0.1"
   },
   "SpeakabilityJudgeMetric": {
     "name": "speakability",
-    "prompt_hash": "e8a9bb4c95c2",
+    "prompt_hash": "1e4f78cb051e",
     "source_hash": "75a203410ec1",
     "version": "v0.2"
   },
@@ -79,7 +79,7 @@
   },
   "TranscriptionAccuracyKeyEntitiesMetric": {
     "name": "transcription_accuracy_key_entities",
-    "prompt_hash": "8c99c4a95b9d",
+    "prompt_hash": "1fd53fcb2ff1",
     "source_hash": "2eb5cecaaa2b",
     "version": "v0.2"
   },
@@ -92,12 +92,12 @@
   "UserBehavioralFidelityMetric": {
     "name": "user_behavioral_fidelity",
     "prompt_hash": "5ab4fcac8a8a",
-    "source_hash": "92f6992d980b",
-    "version": "v0.2"
+    "source_hash": "c1c200d0fdcb",
+    "version": "v0.1"
   },
   "UserSpeechFidelityMetric": {
     "name": "user_speech_fidelity",
-    "prompt_hash": "c783db0a7ca4",
+    "prompt_hash": "4e89e88e5473",
     "source_hash": "cac98a26dcd0",
     "version": "v0.2"
   }
