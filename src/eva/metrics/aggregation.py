@@ -9,7 +9,10 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import Literal
 
+import numpy as np
+
 from eva.models.results import RecordMetrics
+from eva.utils.bootstrap import BASE_SEED, assign_bootstrap_cis, bootstrap_ci
 from eva.utils.pass_at_k import (
     compute_pass_at_k,
     compute_pass_power_k,
@@ -81,6 +84,51 @@ EVA_COMPOSITES: list[EVACompositeDefinition] = [
         derived_from=["EVA-A_pass", "EVA-X_pass"],
     ),
 ]
+
+
+def _scenario_means_for_metric(
+    all_metrics: dict[str, RecordMetrics],
+    metric_name: str,
+) -> np.ndarray:
+    """Collapse trials → one value per scenario for a single metric.
+
+    Per-scenario value = mean over trials of ``normalized_score`` (falling back
+    to ``score``). Scenarios where all trials are missing/errored are dropped.
+    For k=1 runs each record is its own scenario.
+    """
+    grouped: dict[str, list[float]] = {}
+    for record_id, record_metrics in all_metrics.items():
+        base_id, _ = parse_trial_record_id(record_id)
+        val = record_metrics.get_score(metric_name)
+        if val is None:
+            continue
+        grouped.setdefault(base_id, []).append(float(val))
+    if not grouped:
+        return np.array([], dtype=float)
+    return np.array([sum(vs) / len(vs) for vs in grouped.values()], dtype=float)
+
+
+def _scenario_values_for_composite(
+    all_metrics: dict[str, RecordMetrics],
+    comp: EVACompositeDefinition,
+) -> np.ndarray:
+    """Collapse trials → one value per scenario for a composite.
+
+    Per-scenario value = mean over trials of the per-trial composite value
+    stored in ``aggregate_metrics``. For pass/derived composites this is the
+    scenario pass rate. Scenarios where all trials have ``None`` for this
+    composite are dropped.
+    """
+    grouped: dict[str, list[float]] = {}
+    for record_id, record_metrics in all_metrics.items():
+        base_id, _ = parse_trial_record_id(record_id)
+        val = record_metrics.aggregate_metrics.get(comp.name)
+        if val is None:
+            continue
+        grouped.setdefault(base_id, []).append(float(val))
+    if not grouped:
+        return np.array([], dtype=float)
+    return np.array([sum(vs) / len(vs) for vs in grouped.values()], dtype=float)
 
 
 def _check_threshold(value: float, operator: str, threshold: float) -> bool:
@@ -159,6 +207,7 @@ def compute_run_level_aggregates(
     all_metrics: dict[str, RecordMetrics],
     num_draws: int = 1,
     composites: list[EVACompositeDefinition] | None = None,
+    seed: int = BASE_SEED,
 ) -> dict:
     """Compute run-level aggregate scores from all records.
 
@@ -166,9 +215,11 @@ def compute_run_level_aggregates(
         all_metrics: Dict mapping record ID to RecordMetrics (must have aggregate_metrics populated).
         num_draws: Number of draws (k) for pass@k computation.
         composites: Custom composite definitions. Defaults to EVA_COMPOSITES.
+        seed: Bootstrap seed for CI computation. Defaults to ``BASE_SEED``.
+            Production callers (the metrics runner) pass ``run_seed(run_dir.name)``.
 
     Returns:
-        Dict with per-composite statistics and optional pass@k data.
+        Dict with per-composite statistics, CI fields, and optional pass@k data.
     """
     composites = composites or EVA_COMPOSITES
 
@@ -206,11 +257,23 @@ def compute_run_level_aggregates(
             else:
                 entry["success_rate"] = round(sum(1 for v in values if v >= 0.5) / len(values), 4)
 
+        # Bootstrap CI on the per-scenario mean.
+        scenario_values = _scenario_values_for_composite(all_metrics, comp)
+        if len(scenario_values) == 0:
+            entry["mean_ci_lower"] = None
+            entry["mean_ci_upper"] = None
+            entry["mean_ci_n_scenarios"] = 0
+        else:
+            lower, upper = bootstrap_ci(scenario_values, seed=seed)
+            entry["mean_ci_lower"] = round(lower, 4)
+            entry["mean_ci_upper"] = round(upper, 4)
+            entry["mean_ci_n_scenarios"] = len(scenario_values)
+
         result[comp.name] = entry
 
     # pass_k for aggregate metrics if multi-trial
     if num_draws > 1:
-        pass_k_data = _compute_aggregate_pass_k(all_metrics, num_draws, composites)
+        pass_k_data = _compute_aggregate_pass_k(all_metrics, num_draws, composites, seed=seed)
         if pass_k_data:
             result["pass_k"] = pass_k_data
 
@@ -221,6 +284,7 @@ def _compute_aggregate_pass_k(
     all_metrics: dict[str, RecordMetrics],
     num_draws: int,
     composites: list[EVACompositeDefinition] | None = None,
+    seed: int = BASE_SEED,
 ) -> dict:
     """Compute pass@1, pass@k, pass^k (observed), and pass^k (theoretical) for aggregate metrics across trials."""
     composites = composites or EVA_COMPOSITES
@@ -264,7 +328,7 @@ def _compute_aggregate_pass_k(
 
         if pass_at_k_values:
             count = len(pass_at_k_values)
-            result[comp.name] = {
+            entry = {
                 "pass_at_1": round(sum(pass_at_1_values) / count, 4),
                 "pass_at_k": round(sum(pass_at_k_values) / count, 4),
                 "pass_power_k_observed": round(sum(pass_power_k_observed_values) / count, 4),
@@ -272,5 +336,15 @@ def _compute_aggregate_pass_k(
                 "k": num_draws,
                 "count": count,
             }
+            assign_bootstrap_cis(
+                entry,
+                {
+                    "pass_at_1": pass_at_1_values,
+                    "pass_at_k": pass_at_k_values,
+                    "pass_power_k_observed": pass_power_k_observed_values,
+                },
+                seed=seed,
+            )
+            result[comp.name] = entry
 
     return result
