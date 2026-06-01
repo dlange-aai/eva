@@ -11,7 +11,6 @@ import numpy as np
 
 from eva.utils.bootstrap import (
     ALPHA,
-    BASE_SEED,
     N_BOOT,
     bootstrap_ci,
     bootstrap_resample,
@@ -67,11 +66,11 @@ class TestBootstrapCI:
         lower, upper = bootstrap_ci(np.array([0.42]), n_boot=100, seed=0)
         assert lower == upper == 0.42
 
-    def test_defaults_match_module_constants(self):
-        # Calling with no kwargs should use N_BOOT, BASE_SEED, ALPHA defaults
+    def test_n_boot_and_alpha_defaults_match_module_constants(self):
+        # bootstrap_ci's optional n_boot/alpha defaults should match the module constants.
         values = np.array([0.1, 0.2, 0.3, 0.4, 0.5])
-        a = bootstrap_ci(values)
-        b = bootstrap_ci(values, n_boot=N_BOOT, seed=BASE_SEED, alpha=ALPHA)
+        a = bootstrap_ci(values, seed=0)
+        b = bootstrap_ci(values, n_boot=N_BOOT, seed=0, alpha=ALPHA)
         assert a == b
 
 

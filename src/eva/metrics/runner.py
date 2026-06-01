@@ -24,7 +24,7 @@ from eva.metrics.versioning import _CURRENT_METRIC_VERSION
 from eva.models.config import PipelineType, get_pipeline_type
 from eva.models.record import EvaluationRecord
 from eva.models.results import ConversationResult, MetricScore, PassAtKResult, RecordMetrics
-from eva.utils.bootstrap import BASE_SEED, bootstrap_ci_fields, mean_ci_fields, run_seed
+from eva.utils.bootstrap import bootstrap_ci_fields, mean_ci_fields, run_seed
 from eva.utils.hash_utils import get_dict_hash
 from eva.utils.logging import get_logger
 from eva.utils.pass_at_k import (
@@ -637,7 +637,8 @@ class MetricsRunner:
         metric_names: list[str],
         pass_at_k_results: dict[str, dict[str, PassAtKResult]] | None = None,
         num_draws: int = 1,
-        seed: int = BASE_SEED,
+        *,
+        seed: int,
     ) -> dict[str, dict[str, Any]]:
         """Build per-metric aggregate stats including pass_k.
 
@@ -646,7 +647,7 @@ class MetricsRunner:
             metric_names: List of metric names to aggregate.
             pass_at_k_results: Per-record pass@k results (if multi-trial).
             num_draws: Number of draws (k) for pass@k.
-            seed: Bootstrap seed for CI computation. Defaults to ``BASE_SEED``;
+            seed: Bootstrap seed for CI computation. Keyword-only and required;
                 production callers pass ``run_seed(run_dir.name)``.
 
         Returns:

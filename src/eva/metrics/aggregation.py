@@ -12,7 +12,7 @@ from typing import Literal
 import numpy as np
 
 from eva.models.results import RecordMetrics
-from eva.utils.bootstrap import BASE_SEED, bootstrap_ci_fields, mean_ci_fields
+from eva.utils.bootstrap import bootstrap_ci_fields, mean_ci_fields
 from eva.utils.pass_at_k import (
     compute_pass_at_k,
     compute_pass_power_k,
@@ -207,7 +207,8 @@ def compute_run_level_aggregates(
     all_metrics: dict[str, RecordMetrics],
     num_draws: int = 1,
     composites: list[EVACompositeDefinition] | None = None,
-    seed: int = BASE_SEED,
+    *,
+    seed: int,
 ) -> dict:
     """Compute run-level aggregate scores from all records.
 
@@ -215,7 +216,7 @@ def compute_run_level_aggregates(
         all_metrics: Dict mapping record ID to RecordMetrics (must have aggregate_metrics populated).
         num_draws: Number of draws (k) for pass@k computation.
         composites: Custom composite definitions. Defaults to EVA_COMPOSITES.
-        seed: Bootstrap seed for CI computation. Defaults to ``BASE_SEED``.
+        seed: Bootstrap seed for CI computation. Keyword-only and required.
             Production callers (the metrics runner) pass ``run_seed(run_dir.name)``.
 
     Returns:
@@ -275,7 +276,8 @@ def _compute_aggregate_pass_k(
     all_metrics: dict[str, RecordMetrics],
     num_draws: int,
     composites: list[EVACompositeDefinition] | None = None,
-    seed: int = BASE_SEED,
+    *,
+    seed: int,
 ) -> dict:
     """Compute pass@1, pass@k, pass^k (observed), and pass^k (theoretical) for aggregate metrics across trials."""
     composites = composites or EVA_COMPOSITES

@@ -286,7 +286,7 @@ class TestComputeRunLevelAggregates:
         )
         r2.aggregate_metrics = compute_record_aggregates(r2)
 
-        result = compute_run_level_aggregates({"1.1.1": r1, "1.1.2": r2})
+        result = compute_run_level_aggregates({"1.1.1": r1, "1.1.2": r2}, seed=42)
 
         # EVA-A_pass: r1=1.0, r2=0.0 -> mean=0.5
         assert result["EVA-A_pass"]["mean"] == 0.5
@@ -318,7 +318,7 @@ class TestComputeRunLevelAggregates:
         )
         r2.aggregate_metrics = compute_record_aggregates(r2)
 
-        result = compute_run_level_aggregates({"1": r1, "2": r2})
+        result = compute_run_level_aggregates({"1": r1, "2": r2}, seed=42)
 
         # EVA-A_mean: r1=1.0, r2=0.0 -> mean=0.5, success_rate=0.5 (1 of 2 >= 0.5)
         assert result["EVA-A_mean"]["mean"] == 0.5
@@ -326,7 +326,7 @@ class TestComputeRunLevelAggregates:
 
     def test_empty_metrics(self):
         """No records -> empty result."""
-        result = compute_run_level_aggregates({})
+        result = compute_run_level_aggregates({}, seed=42)
         assert result == {}
 
     def test_records_with_none_aggregates_excluded(self):
@@ -336,7 +336,7 @@ class TestComputeRunLevelAggregates:
         # EVA-A_pass should be None (missing faithfulness, agent_speech_fidelity)
         assert r1.aggregate_metrics["EVA-A_pass"] is None
 
-        result = compute_run_level_aggregates({"1": r1})
+        result = compute_run_level_aggregates({"1": r1}, seed=42)
 
         # EVA-A_pass present but with None mean and none_count tracking
         assert result["EVA-A_pass"]["mean"] is None
@@ -362,7 +362,7 @@ class TestComputeRunLevelAggregates:
             rm.aggregate_metrics = compute_record_aggregates(rm)
             all_metrics[f"1.1.1/trial_{trial_idx}"] = rm
 
-        result = compute_run_level_aggregates(all_metrics, num_draws=3)
+        result = compute_run_level_aggregates(all_metrics, num_draws=3, seed=42)
 
         assert "pass_k" in result
         eva_a = result["pass_k"]["EVA-A_pass"]
@@ -400,7 +400,7 @@ class TestComputeRunLevelAggregates:
         # Verify trial 2 has None for EVA-A_pass
         assert all_metrics["1.1.1/trial_2"].aggregate_metrics["EVA-A_pass"] is None
 
-        result = compute_run_level_aggregates(all_metrics, num_draws=3)
+        result = compute_run_level_aggregates(all_metrics, num_draws=3, seed=42)
 
         # Record should be excluded from pass_k since not all 3 trials are valid
         assert "pass_k" not in result or "EVA-A_pass" not in result.get("pass_k", {})
@@ -598,7 +598,7 @@ class TestPerMetricCIs:
             [(f"1.1.{i}", float(i) / 10) for i in range(20)],
         )
         agg = MetricsRunner._build_per_metric_aggregates(
-            records, ["task_completion"], pass_at_k_results=None, num_draws=1
+            records, ["task_completion"], pass_at_k_results=None, num_draws=1, seed=42
         )
         entry = agg["task_completion"]
         assert "mean_ci_lower" in entry
@@ -614,7 +614,7 @@ class TestPerMetricCIs:
             [("1.1.1", None), ("1.1.2", None)],
         )
         agg = MetricsRunner._build_per_metric_aggregates(
-            records, ["task_completion"], pass_at_k_results=None, num_draws=1
+            records, ["task_completion"], pass_at_k_results=None, num_draws=1, seed=42
         )
         entry = agg["task_completion"]
         assert entry["mean_ci_lower"] is None
@@ -648,7 +648,7 @@ class TestPerMetricCIs:
             for sid in range(10)
         }
         agg = MetricsRunner._build_per_metric_aggregates(
-            records, ["task_completion"], pass_at_k_results=pass_at_k_results, num_draws=3
+            records, ["task_completion"], pass_at_k_results=pass_at_k_results, num_draws=3, seed=42
         )
         block = agg["task_completion"]["pass_k"]
         for stat in ["pass_at_1", "pass_at_k", "pass_power_k_observed"]:

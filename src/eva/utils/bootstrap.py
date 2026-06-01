@@ -14,7 +14,6 @@ import numpy as np
 
 N_BOOT = 2000
 ALPHA = 0.05
-BASE_SEED = 42
 
 
 def run_seed(run_id: str) -> int:
@@ -45,10 +44,14 @@ def bootstrap_resample(values: np.ndarray, n_boot: int, seed: int) -> np.ndarray
 def bootstrap_ci(
     values: np.ndarray,
     n_boot: int = N_BOOT,
-    seed: int = BASE_SEED,
+    *,
+    seed: int,
     alpha: float = ALPHA,
 ) -> tuple[float, float]:
     """95% percentile bootstrap CI on the mean (default alpha=0.05).
+
+    ``seed`` is keyword-only and required: callers must supply a deliberate
+    seed (typically from ``run_seed(run_dir.name)``) so behavior is defined.
 
     Returns ``(lower, upper)``; ``(nan, nan)`` if the input is empty.
     """
