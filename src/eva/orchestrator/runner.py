@@ -159,6 +159,10 @@ class BenchmarkRunner:
         all_output_ids = list(output_id_to_record.keys())
         pending_output_ids = list(all_output_ids)
         rerun_history: dict[str, list[dict]] = {}
+        timeout_attempt_counts: dict[str, int] = {}
+        timeout_validation_cache: dict[str, dict[int, ValidationResult]] = {}
+        max_timeout_attempts = int(self.config.validation_thresholds.get("max_timeout_attempts", 3))
+        timeout_accepted_ids: set[str] = set()
         started_at = datetime.now()
 
         # Initialize port pool once before the attempt loop.
@@ -272,8 +276,12 @@ class BenchmarkRunner:
             not_finished_ids: list[str] = []
             failed_validation_ids: list[str] = []
             validation_results: dict[str, ValidationResult] = {}
+            # Map output_id → ConversationResult for timeout detection
+            result_map: dict[str, ConversationResult] = {}
 
             for output_id, _result, passed, vr in pipeline_results:
+                if isinstance(_result, ConversationResult):
+                    result_map[output_id] = _result
                 if vr is None or (not vr.passed and not vr.failed_metrics):
                     not_finished_ids.append(output_id)
                 else:
@@ -290,10 +298,20 @@ class BenchmarkRunner:
             failed_this_attempt = not_finished_ids + failed_validation_ids
 
             for oid in not_finished_ids:
+                # Distinguish timeout from other not_finished reasons
+                cr = result_map.get(oid)
+                is_timeout = cr is not None and cr.conversation_ended_reason == "timeout"
+                reason = "timeout" if is_timeout else "not_finished"
+                if is_timeout:
+                    timeout_attempt_counts[oid] = timeout_attempt_counts.get(oid, 0) + 1
+                    # Eagerly run LLM validation (skip gate) on every timeout attempt
+                    # and cache the result for later lookup.
+                    vr = await pipeline_validation_runner.validate_one(oid, skip_gate=True)
+                    timeout_validation_cache.setdefault(oid, {})[attempt_number] = vr
                 rerun_history.setdefault(oid, []).append(
                     {
                         "attempt": attempt_number,
-                        "reason": "not_finished",
+                        "reason": reason,
                     }
                 )
             for oid in failed_validation_ids:
@@ -309,6 +327,76 @@ class BenchmarkRunner:
                     if failure_details:
                         entry["failure_details"] = failure_details
                 rerun_history.setdefault(oid, []).append(entry)
+
+            # Check for timeout-accepted records: records that have timed out
+            # max_timeout_attempts times get evaluated with gate bypass.
+            # The current attempt was already validated eagerly above; if it passes,
+            # accept immediately. Otherwise, scan cached results from previous
+            # timeout attempts and restore the archived directory if one passes.
+            newly_timeout_accepted: list[str] = []
+            for oid in list(failed_this_attempt):
+                if timeout_attempt_counts.get(oid, 0) < max_timeout_attempts:
+                    continue
+
+                cached = timeout_validation_cache.get(oid, {})
+                # Check current attempt first
+                current_vr = cached.get(attempt_number)
+                if current_vr and current_vr.passed:
+                    logger.info(
+                        f"Record {oid} timed out {timeout_attempt_counts[oid]} times, "
+                        f"current attempt passed LLM validation — accepting"
+                    )
+                    self._accept_timeout_record(
+                        oid,
+                        failed_this_attempt,
+                        finished_ids,
+                        newly_timeout_accepted,
+                        metrics_runner,
+                        metrics_background_tasks,
+                    )
+                    continue
+
+                # Scan previous timeout attempts for one that passed
+                accepted_from_archive = False
+                for prev_attempt, prev_vr in cached.items():
+                    if prev_attempt == attempt_number:
+                        continue
+                    if prev_vr.passed:
+                        logger.info(
+                            f"Record {oid} timed out {timeout_attempt_counts[oid]} times, "
+                            f"restoring attempt {prev_attempt} which passed LLM validation"
+                        )
+                        # Restore the archived attempt directory
+                        archive_dir = self.output_dir / "records" / f"{oid}_failed_attempt_{prev_attempt}"
+                        record_dir = self.output_dir / "records" / oid
+                        if archive_dir.exists():
+                            # Move current attempt out of the way, restore the passing one
+                            if record_dir.exists():
+                                shutil.move(
+                                    str(record_dir),
+                                    str(self.output_dir / "records" / f"{oid}_failed_attempt_{attempt_number}"),
+                                )
+                            shutil.move(str(archive_dir), str(record_dir))
+                        self._accept_timeout_record(
+                            oid,
+                            failed_this_attempt,
+                            finished_ids,
+                            newly_timeout_accepted,
+                            metrics_runner,
+                            metrics_background_tasks,
+                        )
+                        accepted_from_archive = True
+                        break
+
+                if not accepted_from_archive:
+                    logger.info(
+                        f"Record {oid} timed out {timeout_attempt_counts[oid]} times, "
+                        f"no attempt passed LLM validation — staying pending"
+                    )
+
+            if newly_timeout_accepted:
+                timeout_accepted_ids.update(newly_timeout_accepted)
+                logger.info(f"{len(newly_timeout_accepted)} timeout records accepted via gate bypass")
 
             pending_output_ids = failed_this_attempt
 
@@ -415,6 +503,7 @@ class BenchmarkRunner:
                         "total_attempts": attempt_number,
                         "failed_record_ids": sorted(final_failed_ids),
                         "successful_record_ids": sorted(successful_ids),
+                        "timeout_accepted_record_ids": sorted(timeout_accepted_ids),
                     },
                     "rerun_history": rerun_history,
                     "final_failures": final_failures,
@@ -1027,6 +1116,33 @@ class BenchmarkRunner:
         runner = cls(config)
         runner.output_dir = run_dir  # Use existing output dir, don't create new
         return runner
+
+    def _accept_timeout_record(
+        self,
+        oid: str,
+        failed_this_attempt: list[str],
+        finished_ids: list[str],
+        newly_timeout_accepted: list[str],
+        metrics_runner: MetricsRunner | None,
+        metrics_background_tasks: list[asyncio.Task],
+    ) -> None:
+        """Accept a timeout record by updating result.json and scheduling metrics."""
+        failed_this_attempt.remove(oid)
+        finished_ids.append(oid)
+        newly_timeout_accepted.append(oid)
+        # Update result.json with timeout_accepted flag
+        result_path = self.output_dir / "records" / oid / "result.json"
+        if result_path.exists():
+            with open(result_path) as f:
+                result_data = json.load(f)
+            result_data["timeout_accepted"] = True
+            with open(result_path, "w") as f:
+                json.dump(result_data, f, indent=2)
+        # Fire metrics if runner available
+        if metrics_runner is not None:
+            rdir = self.output_dir / "records" / oid
+            task = asyncio.create_task(metrics_runner.run_and_save_record(oid, rdir))
+            metrics_background_tasks.append(task)
 
     def _archive_failed_attempt(self, record_id: str, attempt_number: int) -> None:
         """Archive a failed attempt before rerunning.

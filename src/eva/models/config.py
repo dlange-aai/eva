@@ -429,12 +429,14 @@ class RunConfig(BaseSettings):
         init=False,
     )
 
-    validation_thresholds: dict[str, float] = Field(
+    validation_thresholds: dict[str, float | int] = Field(
         {
             "conversation_valid_end": 1.0,
             "user_behavioral_fidelity": 1.0,
+            "max_timeout_attempts": 1,
         },
-        description="Validation metric thresholds for rerun decisions (JSON)",
+        description="Validation metric thresholds and settings for rerun decisions (JSON). "
+        "max_timeout_attempts controls how many timeout attempts before accepting the last one for evaluation.",
     )
 
     # Multi-attempt (for pass@k evaluation)
