@@ -2,7 +2,9 @@
   "name": "North Surface Lot",
   "translatable": true,
   "base": [
-    "north lot"
+    "north lot",
+    "north parking",
+    "north lot at headquarters"
   ],
   "translations": {
     "fr": [

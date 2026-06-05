@@ -496,7 +496,7 @@
     },
     "zones": {
       "PZA": {
-        "name": "East Garage",
+        "name": "East Campus Garage",
         "zone_code": "PZA"
       }
     }
@@ -545,7 +545,7 @@
           "permanent",
           "temporary"
         ],
-        "name": "JetBrains IntelliJ IDEA",
+        "name": "IntelliJ IDEA",
         "vendor": "JetBrains"
       }
     }

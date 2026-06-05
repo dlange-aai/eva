@@ -640,7 +640,7 @@
     },
     "zones": {
       "PZN": {
-        "name": "North Lot",
+        "name": "North Surface Lot",
         "zone_code": "PZN"
       }
     }
@@ -689,7 +689,7 @@
           "permanent",
           "temporary"
         ],
-        "name": "JetBrains IntelliJ IDEA",
+        "name": "IntelliJ IDEA",
         "vendor": "JetBrains"
       }
     }

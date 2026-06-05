@@ -578,7 +578,7 @@
         "parking_zones": {
           "PZA": {
             "covered": true,
-            "name": "A Garage",
+            "name": "Garage A",
             "spaces": {
               "PZA-002": {
                 "assigned_employee_id": "EMP066600",
@@ -678,7 +678,7 @@
     },
     "zones": {
       "PZA": {
-        "name": "A Garage"
+        "name": "Garage A"
       }
     }
   },
@@ -739,7 +739,7 @@
         "permanent",
         "temporary"
       ],
-      "name": "JetBrains IntelliJ IDEA",
+      "name": "IntelliJ IDEA",
       "vendor": "JetBrains"
     }
   },

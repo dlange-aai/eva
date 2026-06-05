@@ -1,6 +1,9 @@
 {
   "name": "Jira",
   "translatable": false,
-  "base": [],
+  "base": [
+    "atlassian jira",
+    "jira software"
+  ],
   "translations": {}
 }

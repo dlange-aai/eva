@@ -1,6 +1,9 @@
 {
   "name": "Microsoft Visio",
   "translatable": false,
-  "base": [],
+  "base": [
+    "visio",
+    "ms visio"
+  ],
   "translations": {}
 }

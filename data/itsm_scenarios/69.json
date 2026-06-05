@@ -468,7 +468,7 @@
     },
     "zones": {
       "PZA": {
-        "name": "Main Garage A"
+        "name": "Main Garage"
       }
     }
   },
@@ -559,7 +559,7 @@
           "permanent",
           "temporary"
         ],
-        "name": "IntelliJ",
+        "name": "IntelliJ IDEA",
         "vendor": "JetBrains"
       },
       "LIC-2002": {

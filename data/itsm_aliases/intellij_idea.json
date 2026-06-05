@@ -1,6 +1,11 @@
 {
   "name": "IntelliJ IDEA",
   "translatable": false,
-  "base": [],
+  "base": [
+    "intellij",
+    "idea",
+    "jetbrains intellij idea",
+    "jetbrains intellij"
+  ],
   "translations": {}
 }

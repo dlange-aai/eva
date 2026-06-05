@@ -1,6 +1,8 @@
 {
   "name": "Figma",
   "translatable": false,
-  "base": [],
+  "base": [
+    "figma design"
+  ],
   "translations": {}
 }

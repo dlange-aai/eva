@@ -3,7 +3,6 @@
   "translatable": true,
   "base": [
     "a garage",
-    "main garage",
     "garage a"
   ],
   "translations": {

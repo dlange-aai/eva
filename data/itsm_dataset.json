@@ -450,7 +450,7 @@
           },
           "LIC-2001": {
             "catalog_id": "LIC-2001",
-            "name": "JetBrains IntelliJ IDEA",
+            "name": "IntelliJ IDEA",
             "vendor": "JetBrains",
             "license_cost_usd": 599,
             "license_types_supported": [
@@ -1304,7 +1304,7 @@
           },
           "LIC-2001": {
             "catalog_id": "LIC-2001",
-            "name": "JetBrains IntelliJ IDEA",
+            "name": "IntelliJ IDEA",
             "vendor": "JetBrains",
             "license_cost_usd": 599,
             "license_types_supported": [
@@ -2158,7 +2158,7 @@
           "licenses": {
             "LIC-2001": {
               "catalog_id": "LIC-2001",
-              "name": "JetBrains IntelliJ IDEA",
+              "name": "IntelliJ IDEA",
               "vendor": "JetBrains",
               "license_cost_usd": 599,
               "license_types_supported": [
@@ -3142,7 +3142,7 @@
           "licenses": {
             "LIC-1100": {
               "catalog_id": "LIC-1100",
-              "name": "JetBrains IntelliJ IDEA",
+              "name": "IntelliJ IDEA",
               "vendor": "JetBrains",
               "license_cost_usd": 599,
               "license_types_supported": [
@@ -4034,7 +4034,7 @@
           },
           "LIC-2001": {
             "catalog_id": "LIC-2001",
-            "name": "JetBrains IntelliJ IDEA",
+            "name": "IntelliJ IDEA",
             "vendor": "JetBrains",
             "license_cost_usd": 599,
             "license_types_supported": [
@@ -4972,7 +4972,7 @@
           },
           "LIC-2001": {
             "catalog_id": "LIC-2001",
-            "name": "JetBrains IntelliJ IDEA",
+            "name": "IntelliJ IDEA",
             "vendor": "JetBrains",
             "license_cost_usd": 649,
             "license_types_supported": [
@@ -5123,7 +5123,7 @@
               "parking_zones": {
                 "PZA": {
                   "zone_code": "PZA",
-                  "name": "A Garage",
+                  "name": "Garage A",
                   "covered": true,
                   "spaces": {
                     "PZA-002": {
@@ -5223,7 +5223,7 @@
           },
           "zones": {
             "PZA": {
-              "name": "A Garage"
+              "name": "Garage A"
             }
           }
         },
@@ -5932,7 +5932,7 @@
           },
           "LIC-2001": {
             "catalog_id": "LIC-2001",
-            "name": "JetBrains IntelliJ IDEA",
+            "name": "IntelliJ IDEA",
             "vendor": "JetBrains",
             "license_cost_usd": 599,
             "license_types_supported": [
@@ -6817,7 +6817,7 @@
           },
           "LIC-2001": {
             "catalog_id": "LIC-2001",
-            "name": "JetBrains IntelliJ IDEA",
+            "name": "IntelliJ IDEA",
             "vendor": "JetBrains",
             "license_cost_usd": 599,
             "license_types_supported": [
@@ -7663,7 +7663,7 @@
           },
           "LIC-2001": {
             "catalog_id": "LIC-2001",
-            "name": "JetBrains IntelliJ IDEA",
+            "name": "IntelliJ IDEA",
             "vendor": "JetBrains",
             "license_cost_usd": 599,
             "license_types_supported": [
@@ -7749,7 +7749,7 @@
           "zones": {
             "PZE": {
               "zone_code": "PZE",
-              "name": "East Garage"
+              "name": "East Campus Garage"
             }
           },
           "desks": {
@@ -8538,7 +8538,7 @@
           "licenses": {
             "LIC-2001": {
               "catalog_id": "LIC-2001",
-              "name": "JetBrains IntelliJ IDEA",
+              "name": "IntelliJ IDEA",
               "vendor": "JetBrains",
               "license_cost_usd": 699,
               "license_types_supported": [
@@ -9519,7 +9519,7 @@
           "licenses": {
             "LIC-0018": {
               "catalog_id": "LIC-0018",
-              "name": "JetBrains IntelliJ IDEA",
+              "name": "IntelliJ IDEA",
               "vendor": "JetBrains",
               "license_cost_usd": 599,
               "license_types_supported": [
@@ -9957,7 +9957,7 @@
         "last_name": "<LAST_NAME>",
         "employee_id": "EMP064218",
         "phone_last_four": "9401",
-        "license_product_name": "IntelliJ"
+        "license_product_name": "IntelliJ IDEA"
       }
     },
     "user_config": {
@@ -9971,7 +9971,7 @@
       "last_name": "<LAST_NAME>",
       "employee_id": "EMP064218",
       "phone_last_four": "9401",
-      "license_name": "IntelliJ"
+      "license_name": "IntelliJ IDEA"
     },
     "scenario_context": {
       "premise": "An engineer needs a permanent IntelliJ IDEA license for daily development work. The agent looks up the license catalog, validates the cost center (auto-fetched, sufficient budget), and submits the permanent license request.",
@@ -10382,7 +10382,7 @@
           "licenses": {
             "LIC-2001": {
               "catalog_id": "LIC-2001",
-              "name": "JetBrains IntelliJ IDEA",
+              "name": "IntelliJ IDEA",
               "vendor": "JetBrains",
               "license_cost_usd": 699,
               "license_types_supported": [
@@ -10673,7 +10673,7 @@
             "event_type": "tool_call",
             "tool_name": "get_license_catalog_item",
             "params": {
-              "license_name": "IntelliJ"
+              "license_name": "IntelliJ IDEA"
             }
           },
           {
@@ -10685,7 +10685,7 @@
               "catalog_id": "LIC-2001",
               "license": {
                 "catalog_id": "LIC-2001",
-                "name": "JetBrains IntelliJ IDEA",
+                "name": "IntelliJ IDEA",
                 "vendor": "JetBrains",
                 "license_cost_usd": 699,
                 "license_types_supported": [
@@ -11270,7 +11270,7 @@
             },
             "LIC-2011": {
               "catalog_id": "LIC-2011",
-              "name": "JetBrains IntelliJ IDEA",
+              "name": "IntelliJ IDEA",
               "vendor": "JetBrains",
               "license_cost_usd": 599,
               "license_types_supported": [
@@ -14625,7 +14625,7 @@
           "licenses": {
             "LIC-2001": {
               "catalog_id": "LIC-2001",
-              "name": "JetBrains IntelliJ IDEA",
+              "name": "IntelliJ IDEA",
               "vendor": "JetBrains",
               "license_cost_usd": 599,
               "license_types_supported": [
@@ -14694,7 +14694,7 @@
           "zones": {
             "PZA": {
               "zone_code": "PZA",
-              "name": "East Garage"
+              "name": "East Campus Garage"
             }
           },
           "desks": {
@@ -16306,7 +16306,7 @@
           },
           "LIC-1001": {
             "catalog_id": "LIC-1001",
-            "name": "JetBrains IntelliJ IDEA",
+            "name": "IntelliJ IDEA",
             "vendor": "JetBrains",
             "license_cost_usd": 699,
             "license_types_supported": [
@@ -17911,7 +17911,7 @@
           },
           "LIC-2001": {
             "catalog_id": "LIC-2001",
-            "name": "JetBrains IntelliJ IDEA",
+            "name": "IntelliJ IDEA",
             "vendor": "JetBrains",
             "license_cost_usd": 599,
             "license_types_supported": [
@@ -19671,7 +19671,7 @@
           },
           "LIC-2001": {
             "catalog_id": "LIC-2001",
-            "name": "JetBrains IntelliJ IDEA",
+            "name": "IntelliJ IDEA",
             "vendor": "JetBrains",
             "license_cost_usd": 599,
             "license_types_supported": [
@@ -20580,7 +20580,7 @@
           },
           "LIC-2001": {
             "catalog_id": "LIC-2001",
-            "name": "JetBrains IntelliJ IDEA",
+            "name": "IntelliJ IDEA",
             "vendor": "JetBrains",
             "license_cost_usd": 599,
             "license_types_supported": [
@@ -20679,7 +20679,7 @@
           },
           "zones": {
             "PZA": {
-              "name": "A Garage"
+              "name": "Garage A"
             }
           },
           "desks": {
@@ -21537,7 +21537,7 @@
           },
           "LIC-2001": {
             "catalog_id": "LIC-2001",
-            "name": "JetBrains IntelliJ IDEA",
+            "name": "IntelliJ IDEA",
             "vendor": "JetBrains",
             "license_cost_usd": 649,
             "license_types_supported": [
@@ -22356,7 +22356,7 @@
           },
           "LIC-2001": {
             "catalog_id": "LIC-2001",
-            "name": "JetBrains IntelliJ IDEA",
+            "name": "IntelliJ IDEA",
             "vendor": "JetBrains",
             "license_cost_usd": 599,
             "license_types_supported": [
@@ -25175,7 +25175,7 @@
           },
           "LIC-2001": {
             "catalog_id": "LIC-2001",
-            "name": "JetBrains IntelliJ IDEA",
+            "name": "IntelliJ IDEA",
             "vendor": "JetBrains",
             "license_cost_usd": 599,
             "license_types_supported": [
@@ -26757,7 +26757,7 @@
           "licenses": {
             "LIC-2001": {
               "catalog_id": "LIC-2001",
-              "name": "JetBrains IntelliJ IDEA",
+              "name": "IntelliJ IDEA",
               "vendor": "JetBrains",
               "license_cost_usd": 599,
               "license_types_supported": [
@@ -30027,7 +30027,7 @@
           },
           "LIC-2002": {
             "catalog_id": "LIC-2002",
-            "name": "JetBrains IntelliJ IDEA",
+            "name": "IntelliJ IDEA",
             "vendor": "JetBrains",
             "license_cost_usd": 599,
             "license_types_supported": [
@@ -30526,7 +30526,7 @@
         "phone_last_four": "4629",
         "application_name": "Datadog",
         "access_level": "standard",
-        "license_product_name": "IntelliJ",
+        "license_product_name": "IntelliJ IDEA",
         "otp_code": "381642"
       }
     },
@@ -30543,7 +30543,7 @@
       "phone_last_four": "4629",
       "application_name": "Datadog",
       "requested_access_level": "standard",
-      "license_name": "IntelliJ"
+      "license_name": "IntelliJ IDEA"
     },
     "scenario_context": {
       "premise": "An employee needs Datadog access (requires manager approval) AND a permanent IntelliJ license. Two different catalog lookups. Approval routing for Datadog only. Cost center validation for IntelliJ.",
@@ -30970,7 +30970,7 @@
           "licenses": {
             "LIC-2008": {
               "catalog_id": "LIC-2008",
-              "name": "JetBrains IntelliJ IDEA",
+              "name": "IntelliJ IDEA",
               "vendor": "JetBrains",
               "license_cost_usd": 699,
               "license_types_supported": [
@@ -31280,7 +31280,7 @@
             "event_type": "tool_call",
             "tool_name": "get_license_catalog_item",
             "params": {
-              "license_name": "IntelliJ"
+              "license_name": "IntelliJ IDEA"
             }
           },
           {
@@ -31292,7 +31292,7 @@
               "catalog_id": "LIC-2008",
               "license": {
                 "catalog_id": "LIC-2008",
-                "name": "JetBrains IntelliJ IDEA",
+                "name": "IntelliJ IDEA",
                 "vendor": "JetBrains",
                 "license_cost_usd": 699,
                 "license_types_supported": [
@@ -33916,7 +33916,7 @@
           "licenses": {
             "LIC-0001": {
               "catalog_id": "LIC-0001",
-              "name": "JetBrains IntelliJ IDEA",
+              "name": "IntelliJ IDEA",
               "vendor": "JetBrains",
               "license_cost_usd": 599,
               "license_types_supported": [
@@ -36210,7 +36210,7 @@
           "licenses": {
             "LIC-2001": {
               "catalog_id": "LIC-2001",
-              "name": "JetBrains IntelliJ IDEA",
+              "name": "IntelliJ IDEA",
               "vendor": "JetBrains",
               "license_cost_usd": 699,
               "license_types_supported": [
@@ -38650,7 +38650,7 @@
           },
           "LIC-2001": {
             "catalog_id": "LIC-2001",
-            "name": "JetBrains IntelliJ IDEA",
+            "name": "IntelliJ IDEA",
             "vendor": "JetBrains",
             "license_cost_usd": 599,
             "license_types_supported": [
@@ -38742,7 +38742,7 @@
           "zones": {
             "PZA": {
               "zone_code": "PZA",
-              "name": "Main Garage A"
+              "name": "Main Garage"
             }
           },
           "desks": {
@@ -39712,7 +39712,7 @@
           },
           "LIC-2001": {
             "catalog_id": "LIC-2001",
-            "name": "JetBrains IntelliJ IDEA",
+            "name": "IntelliJ IDEA",
             "vendor": "JetBrains",
             "license_cost_usd": 599,
             "license_types_supported": [
@@ -40829,7 +40829,7 @@
           },
           "LIC-2001": {
             "catalog_id": "LIC-2001",
-            "name": "JetBrains IntelliJ IDEA",
+            "name": "IntelliJ IDEA",
             "vendor": "JetBrains",
             "license_cost_usd": 699,
             "license_types_supported": [
@@ -41374,7 +41374,7 @@
         "employee_id": "EMP048173",
         "phone_last_four": "5936",
         "building_name": "Headquarters",
-        "zone_name": "North Lot",
+        "zone_name": "North Surface Lot",
         "zone_code": "PZB",
         "preferred_floor": "FL2",
         "fallback_floor": "FL3",
@@ -41395,7 +41395,7 @@
       "last_name": "<LAST_NAME>",
       "employee_id": "EMP048173",
       "phone_last_four": "5936",
-      "preferred_parking_zone": "North Lot",
+      "preferred_parking_zone": "North Surface Lot",
       "preferred_building": "Headquarters",
       "preferred_floor": "FL2",
       "booking_date": "2026-11-16",
@@ -41880,7 +41880,7 @@
               "name": "South Garage"
             },
             "PZB": {
-              "name": "North Lot"
+              "name": "North Surface Lot"
             }
           },
           "desks": {
@@ -42198,7 +42198,7 @@
             "event_type": "tool_call",
             "tool_name": "check_parking_availability",
             "params": {
-              "zone_code": "North Lot"
+              "zone_code": "North Surface Lot"
             }
           },
           {
@@ -42941,7 +42941,7 @@
           },
           "LIC-2001": {
             "catalog_id": "LIC-2001",
-            "name": "JetBrains IntelliJ IDEA",
+            "name": "IntelliJ IDEA",
             "vendor": "JetBrains",
             "license_cost_usd": 599,
             "license_types_supported": [
@@ -44300,7 +44300,7 @@
           "licenses": {
             "LIC-2001": {
               "catalog_id": "LIC-2001",
-              "name": "JetBrains IntelliJ IDEA",
+              "name": "IntelliJ IDEA",
               "vendor": "JetBrains",
               "license_cost_usd": 599,
               "license_types_supported": [
@@ -46493,7 +46493,7 @@
           },
           "LIC-2001": {
             "catalog_id": "LIC-2001",
-            "name": "JetBrains IntelliJ IDEA",
+            "name": "IntelliJ IDEA",
             "vendor": "JetBrains",
             "license_cost_usd": 599,
             "license_types_supported": [
@@ -47717,7 +47717,7 @@
           "licenses": {
             "LIC-2001": {
               "catalog_id": "LIC-2001",
-              "name": "JetBrains IntelliJ IDEA",
+              "name": "IntelliJ IDEA",
               "vendor": "JetBrains",
               "license_cost_usd": 699,
               "license_types_supported": [
@@ -48510,7 +48510,7 @@
         "building_name": "Headquarters",
         "floor": "FL2",
         "backup_desk_floor": "FL3",
-        "zone_name": "North Lot"
+        "zone_name": "North Surface Lot"
       }
     },
     "user_config": {
@@ -48528,7 +48528,7 @@
       "preferred_building": "Headquarters",
       "preferred_desk_floor": "FL2",
       "backup_desk_floor": "FL3",
-      "preferred_parking_zone": "North Lot"
+      "preferred_parking_zone": "North Surface Lot"
     },
     "scenario_context": {
       "premise": "Employee's VPN keeps dropping (troubleshoot fails → ticket + SLA + diagnostic). Also needs a desk (preferred floor full → picks alternative). Also needs parking (available space found).",
@@ -48940,7 +48940,7 @@
           "licenses": {
             "LIC-2001": {
               "catalog_id": "LIC-2001",
-              "name": "JetBrains IntelliJ IDEA",
+              "name": "IntelliJ IDEA",
               "vendor": "JetBrains",
               "license_cost_usd": 599,
               "license_types_supported": [
@@ -49009,7 +49009,7 @@
           "zones": {
             "PZN": {
               "zone_code": "PZN",
-              "name": "North Lot"
+              "name": "North Surface Lot"
             }
           },
           "desks": {
@@ -49428,7 +49428,7 @@
             "event_type": "tool_call",
             "tool_name": "check_parking_availability",
             "params": {
-              "zone_code": "North Lot"
+              "zone_code": "North Surface Lot"
             }
           },
           {
@@ -52457,7 +52457,7 @@
           },
           "LIC-2001": {
             "catalog_id": "LIC-2001",
-            "name": "JetBrains IntelliJ IDEA",
+            "name": "IntelliJ IDEA",
             "vendor": "JetBrains",
             "license_cost_usd": 599,
             "license_types_supported": [
@@ -53708,7 +53708,7 @@
           "licenses": {
             "LIC-2001": {
               "catalog_id": "LIC-2001",
-              "name": "JetBrains IntelliJ IDEA",
+              "name": "IntelliJ IDEA",
               "vendor": "JetBrains",
               "license_cost_usd": 649,
               "license_types_supported": [
@@ -54673,7 +54673,7 @@
         "access_level_1": "read_only",
         "application_name_2": "Datadog",
         "access_level_2": "standard",
-        "license_product_name": "IntelliJ",
+        "license_product_name": "IntelliJ IDEA",
         "duration_days": 90,
         "temporary_license_expiration_date": "2026-12-06",
         "otp_code": "481926"
@@ -54694,7 +54694,7 @@
       "access_level_1": "read_only",
       "application_name_2": "Datadog",
       "access_level_2": "standard",
-      "license_name": "IntelliJ",
+      "license_name": "IntelliJ IDEA",
       "preferred_duration_days": 90
     },
     "scenario_context": {
@@ -55135,7 +55135,7 @@
           "licenses": {
             "LIC-2001": {
               "catalog_id": "LIC-2001",
-              "name": "IntelliJ",
+              "name": "IntelliJ IDEA",
               "vendor": "JetBrains",
               "license_cost_usd": 599,
               "license_types_supported": [
@@ -55230,7 +55230,7 @@
           },
           "zones": {
             "PZA": {
-              "name": "Main Garage A"
+              "name": "Main Garage"
             }
           },
           "desks": {
@@ -55630,7 +55630,7 @@
             "event_type": "tool_call",
             "tool_name": "get_license_catalog_item",
             "params": {
-              "license_name": "IntelliJ"
+              "license_name": "IntelliJ IDEA"
             }
           },
           {
@@ -55642,7 +55642,7 @@
               "catalog_id": "LIC-2001",
               "license": {
                 "catalog_id": "LIC-2001",
-                "name": "IntelliJ",
+                "name": "IntelliJ IDEA",
                 "vendor": "JetBrains",
                 "license_cost_usd": 599,
                 "license_types_supported": [
@@ -56199,7 +56199,7 @@
           },
           "LIC-2001": {
             "catalog_id": "LIC-2001",
-            "name": "JetBrains IntelliJ IDEA",
+            "name": "IntelliJ IDEA",
             "vendor": "JetBrains",
             "license_cost_usd": 599,
             "license_types_supported": [
@@ -56282,7 +56282,7 @@
           },
           "zones": {
             "PZA": {
-              "name": "Main Garage A"
+              "name": "Main Garage"
             }
           },
           "desks": {
@@ -58306,7 +58306,7 @@
             },
             "LIC-2002": {
               "catalog_id": "LIC-2002",
-              "name": "JetBrains IntelliJ IDEA",
+              "name": "IntelliJ IDEA",
               "vendor": "JetBrains",
               "license_cost_usd": 699,
               "license_types_supported": [
@@ -58376,7 +58376,7 @@
           "zones": {
             "PZE": {
               "zone_code": "PZE",
-              "name": "East Garage"
+              "name": "East Campus Garage"
             }
           },
           "desks": {
@@ -59231,7 +59231,7 @@
           },
           "LIC-2001": {
             "catalog_id": "LIC-2001",
-            "name": "JetBrains IntelliJ IDEA",
+            "name": "IntelliJ IDEA",
             "vendor": "JetBrains",
             "license_cost_usd": 699,
             "license_types_supported": [
@@ -60233,7 +60233,7 @@
           "licenses": {
             "LIC-3001": {
               "catalog_id": "LIC-3001",
-              "name": "JetBrains IntelliJ IDEA",
+              "name": "IntelliJ IDEA",
               "vendor": "JetBrains",
               "license_cost_usd": 599,
               "license_types_supported": [
@@ -60921,7 +60921,7 @@
         "building_name": "Headquarters",
         "floor": "FL2",
         "backup_desk_floor": "FL3",
-        "zone_name": "North Lot",
+        "zone_name": "North Surface Lot",
         "equipment_type": "ergonomic_chair",
         "delivery_building": "Headquarters",
         "delivery_floor": "FL3",
@@ -60946,7 +60946,7 @@
       "preferred_building": "Headquarters",
       "preferred_desk_floor": "FL2",
       "backup_desk_floor": "FL3",
-      "preferred_parking_zone": "North Lot",
+      "preferred_parking_zone": "North Surface Lot",
       "equipment_type": "ergonomic_chair",
       "delivery_building": "Headquarters",
       "delivery_floor": "FL3",
@@ -61493,7 +61493,7 @@
           "licenses": {
             "LIC-2001": {
               "catalog_id": "LIC-2001",
-              "name": "JetBrains IntelliJ IDEA",
+              "name": "IntelliJ IDEA",
               "vendor": "JetBrains",
               "license_cost_usd": 599,
               "license_types_supported": [
@@ -61563,7 +61563,7 @@
           "zones": {
             "PZN": {
               "zone_code": "PZN",
-              "name": "North Lot"
+              "name": "North Surface Lot"
             }
           },
           "desks": {
@@ -61931,7 +61931,7 @@
             "event_type": "tool_call",
             "tool_name": "check_parking_availability",
             "params": {
-              "zone_code": "North Lot"
+              "zone_code": "North Surface Lot"
             }
           },
           {
@@ -63778,7 +63778,7 @@
           "licenses": {
             "LIC-2001": {
               "catalog_id": "LIC-2001",
-              "name": "JetBrains IntelliJ IDEA",
+              "name": "IntelliJ IDEA",
               "vendor": "JetBrains",
               "license_cost_usd": 599,
               "license_types_supported": [
@@ -66607,7 +66607,7 @@
           "licenses": {
             "LIC-0018": {
               "catalog_id": "LIC-0018",
-              "name": "JetBrains IntelliJ IDEA",
+              "name": "IntelliJ IDEA",
               "vendor": "JetBrains",
               "license_cost_usd": 599,
               "license_types_supported": [
@@ -68574,7 +68574,7 @@
         "access_level_1": "standard",
         "application_name_2": "Datadog",
         "access_level_2": "standard",
-        "license_product_name_permanent": "IntelliJ",
+        "license_product_name_permanent": "IntelliJ IDEA",
         "license_product_name_trial": "Adobe Creative Cloud",
         "duration_days_trial": 90,
         "trial_expiration_date": "2026-12-20",
@@ -68596,7 +68596,7 @@
       "access_level_1": "standard",
       "application_name_2": "Datadog",
       "access_level_2": "standard",
-      "license_name_permanent": "IntelliJ",
+      "license_name_permanent": "IntelliJ IDEA",
       "license_name_trial": "Adobe Creative Cloud",
       "preferred_duration_days": 90
     },
@@ -69034,7 +69034,7 @@
           "licenses": {
             "LIC-2201": {
               "catalog_id": "LIC-2201",
-              "name": "IntelliJ",
+              "name": "IntelliJ IDEA",
               "vendor": "JetBrains",
               "license_cost_usd": 649,
               "license_types_supported": [
@@ -69513,7 +69513,7 @@
             "event_type": "tool_call",
             "tool_name": "get_license_catalog_item",
             "params": {
-              "license_name": "IntelliJ"
+              "license_name": "IntelliJ IDEA"
             }
           },
           {
@@ -69525,7 +69525,7 @@
               "catalog_id": "LIC-2201",
               "license": {
                 "catalog_id": "LIC-2201",
-                "name": "IntelliJ",
+                "name": "IntelliJ IDEA",
                 "vendor": "JetBrains",
                 "license_cost_usd": 649,
                 "license_types_supported": [
@@ -70181,7 +70181,7 @@
           },
           "LIC-2001": {
             "catalog_id": "LIC-2001",
-            "name": "JetBrains IntelliJ IDEA",
+            "name": "IntelliJ IDEA",
             "vendor": "JetBrains",
             "license_cost_usd": 599,
             "license_types_supported": [
@@ -76627,7 +76627,7 @@
           "licenses": {
             "LIC-3001": {
               "catalog_id": "LIC-3001",
-              "name": "JetBrains IntelliJ IDEA",
+              "name": "IntelliJ IDEA",
               "vendor": "JetBrains",
               "license_cost_usd": 599,
               "license_types_supported": [
@@ -77875,7 +77875,7 @@
           "licenses": {
             "LIC-2001": {
               "catalog_id": "LIC-2001",
-              "name": "JetBrains IntelliJ IDEA",
+              "name": "IntelliJ IDEA",
               "vendor": "JetBrains",
               "license_cost_usd": 699,
               "license_types_supported": [
@@ -80752,7 +80752,7 @@
           },
           "LIC-2001": {
             "catalog_id": "LIC-2001",
-            "name": "JetBrains IntelliJ IDEA",
+            "name": "IntelliJ IDEA",
             "vendor": "JetBrains",
             "license_cost_usd": 599,
             "license_types_supported": [
@@ -80836,7 +80836,7 @@
           "zones": {
             "PZA": {
               "zone_code": "PZA",
-              "name": "Main Garage A"
+              "name": "Main Garage"
             }
           },
           "desks": {
@@ -81739,7 +81739,7 @@
           "licenses": {
             "LIC-2001": {
               "catalog_id": "LIC-2001",
-              "name": "JetBrains IntelliJ IDEA",
+              "name": "IntelliJ IDEA",
               "vendor": "JetBrains",
               "license_cost_usd": 599,
               "license_types_supported": [
@@ -83580,7 +83580,7 @@
           },
           "LIC-2001": {
             "catalog_id": "LIC-2001",
-            "name": "JetBrains IntelliJ IDEA",
+            "name": "IntelliJ IDEA",
             "vendor": "JetBrains",
             "license_cost_usd": 599,
             "license_types_supported": [
@@ -84503,7 +84503,7 @@
           "licenses": {
             "LIC-2001": {
               "catalog_id": "LIC-2001",
-              "name": "JetBrains IntelliJ IDEA",
+              "name": "IntelliJ IDEA",
               "vendor": "JetBrains",
               "license_cost_usd": 599,
               "license_types_supported": [

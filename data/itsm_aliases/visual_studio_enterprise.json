@@ -1,6 +1,10 @@
 {
   "name": "Visual Studio Enterprise",
   "translatable": false,
-  "base": [],
+  "base": [
+    "visual studio",
+    "vs enterprise",
+    "vse"
+  ],
   "translations": {}
 }

@@ -1,9 +1,8 @@
 {
-  "name": "Main Garage A",
+  "name": "Main Garage",
   "translatable": true,
   "base": [
-    "garage a",
-    "main garage"
+    "garage a"
   ],
   "translations": {
     "fr": [

@@ -490,7 +490,7 @@
     },
     "zones": {
       "PZA": {
-        "name": "A Garage"
+        "name": "Garage A"
       }
     }
   },
@@ -552,7 +552,7 @@
         "permanent",
         "temporary"
       ],
-      "name": "JetBrains IntelliJ IDEA",
+      "name": "IntelliJ IDEA",
       "vendor": "JetBrains"
     }
   },
