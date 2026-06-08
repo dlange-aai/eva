@@ -8,7 +8,7 @@
   "AgentSpeechFidelityS2SMetric": {
     "name": "agent_speech_fidelity",
     "prompt_hash": "f66f096d3279",
-    "source_hash": "d5e91fa3425a",
+    "source_hash": "db35af2de8a3",
     "version": "v0.2"
   },
   "AuthenticationSuccessMetric": {
