@@ -355,7 +355,7 @@ def create_tts_service(
             settings=ElevenLabsTTSService.Settings(
                 model=params["model"],
                 voice=params.get("voice_id", "hpp4J3VqNfWAUOO0d1Us"),
-                language=_to_language_enum(language_code),
+                language=_base_language(language_code),
             ),
         )
 
