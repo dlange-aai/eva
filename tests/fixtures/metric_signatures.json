@@ -2,8 +2,8 @@
   "AgentSpeechFidelityMetric": {
     "name": "agent_speech_fidelity",
     "prompt_hash": "d657148735fc",
-    "source_hash": "2daa628603bd",
-    "version": "v0.2"
+    "source_hash": "4bb84934ffb3",
+    "version": "v0.3"
   },
   "AgentSpeechFidelityS2SMetric": {
     "name": "agent_speech_fidelity",
