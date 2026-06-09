@@ -11,6 +11,7 @@ _SPEECH_FIDELITY_FAILURE_MODES = (
     "truncation",
     "garbled_hallucination",
     "insertion_hallucination",
+    "wrong_language",
 )
 
 

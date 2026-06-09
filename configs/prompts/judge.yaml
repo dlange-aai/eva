@@ -716,6 +716,8 @@ judge:
 
         - **insertion_hallucination** — The audio contains words or phrases that were NOT in the intended text. The TTS added content on its own — extra sentences, repeated phrases, or filler that the script did not contain.
 
+        - **wrong_language** — The audio is spoken in a language different from the expected language ({expected_language}). Use this when the language mismatch is clear and affects a meaningful portion of the turn, not for individual foreign loanwords or proper nouns that are expected to be pronounced natively.
+
         Tagging guidance:
         - If a turn has both an entity error and missing/dropped content outside tagged regions, list both `entity_error` and `truncation`.
         - Garbled audio at an entity position is `entity_error`, not `garbled_hallucination` — check the intended text first to decide whether the affected region is an entity.
@@ -731,7 +733,7 @@ judge:
               "transcript": <string: your transcription of the audio for this turn using the appropriate writing system for the language spoken, use only the audio for this not the intended text>
               "explanation": "<string: 1-3 sentence analysis in English of fidelity for this turn, citing specific intended vs actual mismatches in the original language, and noting any regions skipped due to interruption flags, if applicable>",
               "rating": <0 or 1>,
-              "failure_modes": <list of strings: zero or more of "entity_error", "truncation", "garbled_hallucination", "insertion_hallucination". Must be [] when rating = 1.>
+              "failure_modes": <list of strings: zero or more of "entity_error", "truncation", "garbled_hallucination", "insertion_hallucination", "wrong_language". Must be [] when rating = 1.>
             }}
           ]
         }}
