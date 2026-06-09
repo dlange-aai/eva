@@ -194,13 +194,14 @@ def create_stt_service(
         )
 
     elif model_lower == "elevenlabs":
-        logger.info("Using ElevenLabs STT")
+        logger.info(f"Using ElevenLabs STT {params['model']}")
         return ElevenLabsRealtimeSTTService(
             api_key=api_key,
             sample_rate=SAMPLE_RATE,
             commit_strategy=CommitStrategy.VAD,
             settings=ElevenLabsRealtimeSTTService.Settings(
-                language=_to_language_enum(language_code),
+                language=_base_language(language_code),
+                model=params["model"],
             ),
         )
 
