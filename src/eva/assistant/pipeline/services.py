@@ -749,6 +749,7 @@ def create_audio_llm_client(
             num_channels=params.get("num_channels", 1),
             sample_width=params.get("sample_width", 2),
             language=language,
+            enable_thinking=params.get("enable_thinking", False),
         )
         logger.info(f"Using {model} vLLM audio-LLM: {base_url}")
         return client
