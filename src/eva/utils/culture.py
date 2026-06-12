@@ -80,13 +80,13 @@ def _resolve_locations(obj: Any, index: dict[str, dict], language: str) -> Any:
     def render(name: str) -> str:
         entry = index.get(name)
         if entry is None:
-            logger.warning("LOC placeholder references unknown alias %r; using literal name.", name)
+            logger.warning(f"LOC placeholder references unknown alias {name}; using literal name.")
             return name
         if _is_english(language):
             return name
         translations = (entry.get("translations") or {}).get(language) or []
         if not translations:
-            logger.warning("Alias %r has no %r translation; rendering English name in user goal.", name, language)
+            logger.warning(f"Alias {name} has no {language} translation; rendering English name in user goal.")
             return name
         return translations[0]
 
@@ -111,6 +111,8 @@ def _replace_in(
     phone: str = "",
     companion_first: str = "",
     companion_first_rom: str = "",
+    loc_index: dict[str, dict] | None = None,
+    language: str = "",
 ) -> Any:
     if isinstance(obj, str):
         # Romanized placeholders are emitted lowercase: they exist for email
@@ -127,14 +129,21 @@ def _replace_in(
             result = result.replace(COMPANION_FIRST_NAME_ROMANIZED_PLACEHOLDER, companion_first_rom.lower()).replace(
                 COMPANION_FIRST_NAME_PLACEHOLDER, companion_first
             )
+        if loc_index:
+            result = _resolve_locations(result, loc_index, language)
         return result
     if isinstance(obj, list):
         return [
-            _replace_in(x, first, last, first_rom, last_rom, phone, companion_first, companion_first_rom) for x in obj
+            _replace_in(
+                x, first, last, first_rom, last_rom, phone, companion_first, companion_first_rom, loc_index, language
+            )
+            for x in obj
         ]
     if isinstance(obj, dict):
         return {
-            k: _replace_in(v, first, last, first_rom, last_rom, phone, companion_first, companion_first_rom)
+            k: _replace_in(
+                v, first, last, first_rom, last_rom, phone, companion_first, companion_first_rom, loc_index, language
+            )
             for k, v in obj.items()
         }
     return obj
@@ -210,13 +219,19 @@ def resolve_user_goal(
     first, last, first_rom, last_rom = _names_for(culture_overrides, romanized_culture_overrides, language)
     phone = _phone_for(culture_overrides, language)
     comp_first, comp_first_rom = _companion_for(culture_overrides, romanized_culture_overrides, language)
+    loc_index = _load_aliases_index(str(aliases_dir)) if aliases_dir is not None else None
     resolved = _replace_in(
-        copy.deepcopy(user_goal), first, last, first_rom, last_rom, phone, comp_first, comp_first_rom
+        copy.deepcopy(user_goal),
+        first,
+        last,
+        first_rom,
+        last_rom,
+        phone,
+        comp_first,
+        comp_first_rom,
+        loc_index,
+        language,
     )
-    if aliases_dir is not None:
-        index = _load_aliases_index(str(aliases_dir))
-        if index:
-            resolved = _resolve_locations(resolved, index, language)
 
     if not starting_utterances or language not in starting_utterances:
         raise KeyError(
@@ -224,13 +239,18 @@ def resolve_user_goal(
             f"Available: {list(starting_utterances or [])}. "
             f"Run scripts/add_culture_data.py --language {language} to populate it."
         )
-    utt = starting_utterances[language]
-    resolved_utt = _replace_in(utt, first, last, first_rom, last_rom, phone, comp_first, comp_first_rom)
-    if aliases_dir is not None:
-        index = _load_aliases_index(str(aliases_dir))
-        if index:
-            resolved_utt = _resolve_locations(resolved_utt, index, language)
-    resolved["starting_utterance"] = resolved_utt
+    resolved["starting_utterance"] = _replace_in(
+        starting_utterances[language],
+        first,
+        last,
+        first_rom,
+        last_rom,
+        phone,
+        comp_first,
+        comp_first_rom,
+        loc_index,
+        language,
+    )
     return resolved
 
 

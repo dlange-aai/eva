@@ -292,19 +292,8 @@ def _load_scenario(domain: str, record_id) -> dict:
 
 
 def _resolve_params(params, culture_overrides, language, romanized_culture_overrides, aliases_index=None):
-    """Resolve name and location placeholders in tool call params.
-
-    - ``<FIRST_NAME>`` / ``<LAST_NAME>`` / ... → per-language name values.
-    - ``<LOC:Name>`` → language-appropriate alias (e.g. "campus est" in French),
-      so the tool receives the translated form and exercises the name_aliases
-      lookup chain end-to-end.
-    """
-    from eva.utils.culture import _companion_for, _names_for, _phone_for
-
-    first, last, first_rom, last_rom = _names_for(culture_overrides, romanized_culture_overrides, language)
-    phone = _phone_for(culture_overrides, language)
-    comp_first, comp_first_rom = _companion_for(culture_overrides, romanized_culture_overrides, language)
-    resolved = _replace_in(copy.deepcopy(params), first, last, first_rom, last_rom, phone, comp_first, comp_first_rom)
+    """Resolve name and location placeholders in tool call params."""
+    resolved = resolve_user_config(params, culture_overrides, language, romanized_culture_overrides)
     if aliases_index:
         resolved = _resolve_locations(resolved, aliases_index, language)
     return resolved

@@ -7,12 +7,12 @@ from types import SimpleNamespace
 from typing import Any
 
 import litellm
-import tiktoken
 from dotenv import load_dotenv
 from openai.types.chat import ChatCompletionMessageToolCall
 
 from eva.utils import router
 from eva.utils.error_handler import is_retryable_error
+from eva.utils.llm_utils import approximate_reasoning_tokens
 from eva.utils.logging import get_logger
 
 load_dotenv()
@@ -35,6 +35,7 @@ class LiteLLMClient:
         """
         self.model = model
         self.use_responses_api = self._lookup_use_responses_api_from_router()
+        self._reasoning_token_fallback_warned = False
 
         logger.info(f"Initialized LiteLLM client with model: {self.model}, use_responses_api={self.use_responses_api}")
         litellm.drop_params = True
@@ -121,18 +122,7 @@ class LiteLLMClient:
                     logger.info(f"💭 Reasoning content from {model} ({len(reasoning_content)} chars)")
                     logger.debug(f"Reasoning content preview: {reasoning_content[:200]}...")
                     if reasoning_tokens == 0:
-                        if not getattr(self, "_reasoning_token_fallback_warned", False):
-                            logger.warning(
-                                "No reasoning token count found in API response for model '%s'; "
-                                "falling back to tiktoken approximation. This warning will not repeat.",
-                                self.model,
-                            )
-                            self._reasoning_token_fallback_warned = True
-                        try:
-                            enc = tiktoken.encoding_for_model(self.model)
-                        except KeyError:
-                            enc = tiktoken.get_encoding("cl100k_base")
-                        reasoning_tokens = len(enc.encode(reasoning_content))
+                        reasoning_tokens = approximate_reasoning_tokens(reasoning_content, self.model, self, logger)
 
                 # Gemini thought signatures are handled automatically by LiteLLM
                 # They are stored in provider_specific_fields and preserved across turns

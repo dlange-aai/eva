@@ -8,7 +8,6 @@ import asyncio
 import time
 from typing import Any
 
-import tiktoken
 from openai import AsyncOpenAI
 
 from eva.assistant.pipeline.alm_base import (
@@ -17,6 +16,7 @@ from eva.assistant.pipeline.alm_base import (
     DEFAULT_SAMPLE_WIDTH,
     BaseALMClient,
 )
+from eva.utils.llm_utils import approximate_reasoning_tokens
 from eva.utils.logging import get_logger
 
 logger = get_logger(__name__)
@@ -51,6 +51,7 @@ class ALMvLLMClient(BaseALMClient):
             sample_width=sample_width,
             language=language,
         )
+        self._reasoning_token_fallback_warned = False
         self.enable_thinking = enable_thinking
         # Normalize base_url: ensure it ends with /v1 for the OpenAI client
         self.base_url = base_url.rstrip("/")
@@ -125,18 +126,7 @@ class ALMvLLMClient(BaseALMClient):
                         reasoning_tokens = getattr(details, "reasoning_tokens", 0)
 
                 if reasoning_content and reasoning_tokens == 0:
-                    if not getattr(self, "_reasoning_token_fallback_warned", False):
-                        logger.warning(
-                            "No reasoning token count found in API response for model '%s'; "
-                            "falling back to tiktoken approximation. This warning will not repeat.",
-                            self.model,
-                        )
-                        self._reasoning_token_fallback_warned = True
-                    try:
-                        enc = tiktoken.encoding_for_model(self.model)
-                    except KeyError:
-                        enc = tiktoken.get_encoding("cl100k_base")
-                    reasoning_tokens = len(enc.encode(reasoning_content))
+                    reasoning_tokens = approximate_reasoning_tokens(reasoning_content, self.model, self, logger)
 
                 stats = {
                     "prompt_tokens": usage.prompt_tokens if usage else 0,
