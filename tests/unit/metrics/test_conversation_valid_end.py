@@ -13,7 +13,7 @@ class TestConversationValidEnd:
         self.metric = ConversationValidEndMetric()
 
     def _write_events(self, tmp_path, events: list[dict]) -> str:
-        events_file = tmp_path / "elevenlabs_events.jsonl"
+        events_file = tmp_path / "user_simulator_events.jsonl"
         with open(events_file, "w") as f:
             f.writelines(json.dumps(event) + "\n" for event in events)
         return str(tmp_path)
@@ -59,7 +59,7 @@ class TestConversationValidEnd:
 
     @pytest.mark.asyncio
     async def test_empty_events_file(self, tmp_path):
-        (tmp_path / "elevenlabs_events.jsonl").write_text("")
+        (tmp_path / "user_simulator_events.jsonl").write_text("")
         ctx = make_metric_context(output_dir=str(tmp_path))
         score = await self.metric.compute(ctx)
         assert score.score == 0.0
@@ -89,7 +89,7 @@ class TestConversationValidEnd:
 
     @pytest.mark.asyncio
     async def test_malformed_json_last_line(self, tmp_path):
-        events_file = tmp_path / "elevenlabs_events.jsonl"
+        events_file = tmp_path / "user_simulator_events.jsonl"
         events_file.write_text("not valid json\n")
         ctx = make_metric_context(output_dir=str(tmp_path))
 

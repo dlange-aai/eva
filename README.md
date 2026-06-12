@@ -121,14 +121,24 @@ EVA_LOG_LEVEL=INFO                    # DEBUG | INFO | WARNING | ERROR
 
 See `.env.example` for the complete list of configuration options.
 
-The OpenAI Realtime caller supports behavior, background-noise, and connection-degradation perturbations. Accent variants currently require the ElevenLabs caller because they select dedicated ElevenLabs agents.
+**ElevenLabs Agents is the recommended user simulator.** The OpenAI Realtime caller is available as an experimental alternative for those who want to try it, but has not yet been validated at scale and should be treated as beta.
 
-Both caller providers write `user_simulator_events.jsonl`, which is the provider-neutral metric input. ElevenLabs also writes `elevenlabs_events.jsonl` for compatibility with existing runs and downstream tooling.
+The OpenAI Realtime caller supports behavior, background-noise, and connection-degradation perturbations. Accent variants currently require the ElevenLabs caller because they select dedicated ElevenLabs agents. Both caller providers write `user_simulator_events.jsonl`.
+
+#### Known limitations of the OpenAI Realtime caller (beta)
+
+Before relying on it for large-scale evaluation, the following should be kept in mind:
+
+- **Validation metrics** were built for cascade pipelines and may need updates for S2S. `UserBehavioralFidelity` was only validated on ElevenLabs Agents, so it may not catch failure modes specific to GPT-Realtime. GPT-Realtime may also struggle with instruction-following, though user scenarios are generally simple enough that this may not be an issue in practice.
+- **Transcription vs. intent**: with ElevenLabs Agents (Cascade), metrics have access to the *intended* text the user was trying to say. With OpenAI Realtime, only a *transcript* of the audio is available. Transcription errors can be mistaken for behavioral failures by `UserBehavioralFidelity`, or cause downstream issues for metrics like `faithfulness` and `conversation_progression` (e.g. a confirmation number mis-transcribed as "DJLPO" instead of "DJ3LPO" could produce an unjustified faithfulness failure).
+- **Assistant turn transcription** is produced by OpenAI's input audio transcription (Whisper) rather than ElevenLabs ScribeV2.2Realtime. Increased transcription errors on assistant turns could unfairly penalize agents on text-based metrics.
+- **Conversation trace merging** — combining user simulator logs with agent logs to build the turn-by-turn trace is a known source of subtle bugs (delayed or missing transcripts). This new setup has not yet been stress-tested at scale.
 
 ### Running EVA
 
 #### OpenAI Realtime Caller Smoke Test
 
+A smoke test is easier to perform with the OpenAI Realtime caller, as it does not require an ElevenLabs agent ID.
 After configuring the assistant pipeline and `OPENAI_API_KEY` in `.env`, run one ITSM record with the OpenAI caller:
 
 ```bash
@@ -321,7 +331,6 @@ output/<run_id>/
     ├── audit_log.json       # Complete interaction log
     ├── pipecat_logs.jsonl   # Pipecat framework events
     ├── user_simulator_events.jsonl # Provider-neutral caller events
-    ├── elevenlabs_events.jsonl # ElevenLabs compatibility artifact (ElevenLabs caller only)
     └── metrics.json         # Per-record metric scores and details
 ```
 
