@@ -110,7 +110,7 @@ class TestCallbacksResetKeepalive:
         sim._on_user_speaks("I need help")
         sim.event_logger.log_event.assert_called_once_with(
             "user_speech",
-            {"text": "I need help", "source": "elevenlabs_agent"},
+            {"text": "I need help", "source": "simulated_user"},
         )
 
     def test_assistant_speech_logs_correct_event_structure(self, tmp_path):
@@ -119,7 +119,7 @@ class TestCallbacksResetKeepalive:
         sim._on_assistant_speaks("Sure thing")
         sim.event_logger.log_event.assert_called_once_with(
             "assistant_speech",
-            {"text": "Sure thing", "source": "pipecat_assistant"},
+            {"text": "Sure thing", "source": "assistant"},
         )
 
 

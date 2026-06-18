@@ -257,8 +257,8 @@ class TestUserSimulatorSelection:
     def test_worker_timeout_reserves_provider_cleanup_window(self, tmp_path):
         worker = _make_worker(tmp_path)
 
-        assert worker._conversation_guard_timeout_seconds() == 150
-        assert USER_SIMULATOR_SHUTDOWN_GRACE_SECONDS == 90
+        assert worker._conversation_guard_timeout_seconds() == 80
+        assert USER_SIMULATOR_SHUTDOWN_GRACE_SECONDS == 20
 
     @pytest.mark.asyncio
     async def test_returns_ended_reason_and_captures_stats(self, tmp_path):
