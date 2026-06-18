@@ -110,6 +110,9 @@ class BotToBotAudioInterface(AudioInterface):
         self._assistant_audio_active = False  # framework_agent speaking
         self._user_audio_ended_time = None  # Track when user audio ended for silence sending
         self._assistant_audio_ended_time = None  # Track when assistant audio ended for silence sending
+        # Loop time of the last real user-audio chunk sent — used to stamp the
+        # user audio_end at the actual end (detection lags it by ~600ms).
+        self._last_user_audio_send_time: float | None = None
         # Set when ElevenLabs signals the user agent has finished its utterance
         # (callback_agent_response). Used as the authoritative end-of-turn cue so
         # we still mark end-of-utterance when the audio drains frame-aligned with
@@ -435,7 +438,13 @@ class BotToBotAudioInterface(AudioInterface):
         # Consume the end-of-turn cue so it doesn't carry into the next turn.
         self._user_turn_complete = False
         if self.event_logger:
-            self.event_logger.log_audio_end("elevenlabs_user")
+            # Detection lags the real end by ~600ms; stamp at the last real chunk.
+            real_end_unix = (
+                time.time() - (current_time - self._last_user_audio_send_time)
+                if self._last_user_audio_send_time is not None
+                else time.time()
+            )
+            self.event_logger.log_audio_end("elevenlabs_user", real_end_unix)
         logger.info("🎤 User audio END")
 
         # Send user_speech_stop event so assistant servers can compute model response latency.
@@ -475,9 +484,19 @@ class BotToBotAudioInterface(AudioInterface):
     async def _on_assistant_audio_end(self) -> None:
         """Handle assistant audio ending (silence detected)."""
         self._assistant_audio_active = False
-        self._assistant_audio_ended_time = asyncio.get_event_loop().time()
+        # On entry, _assistant_audio_ended_time still holds the last received-chunk
+        # loop time (the real end). Detection lags it by SILENCE_DETECTION_THRESHOLD_S,
+        # so stamp the event at the real end (in unix time) rather than now.
+        loop_now = asyncio.get_event_loop().time()
+        real_end_unix = (
+            time.time() - (loop_now - self._assistant_audio_ended_time)
+            if self._assistant_audio_ended_time is not None
+            else time.time()
+        )
         if self.event_logger:
-            self.event_logger.log_audio_end("framework_agent")
+            self.event_logger.log_audio_end("framework_agent", real_end_unix)
+        # Now mark detection time for the silence-sending state machine.
+        self._assistant_audio_ended_time = loop_now
         logger.info("🔊 Assistant audio END (silence detected)")
         # Send catch-up silence to cover the detection delay for ElevenLabs
         if ASSISTANT_CATCHUP_SILENCE_CHUNKS > 0 and not self._should_send_ambient_noise():
@@ -690,6 +709,7 @@ class BotToBotAudioInterface(AudioInterface):
                         mulaw_audio = self._convert_pcm_to_mulaw(chunk)
                         if mulaw_audio and await self._send_audio_frame(mulaw_audio):
                             audio_chunks_sent += 1
+                            self._last_user_audio_send_time = current_time
                             # Calculate next send time based on absolute target (prevents drift)
                             next_send_time = stream_start_time + (audio_chunks_sent * send_interval)
                             if audio_chunks_sent % LOG_INTERVAL_AUDIO_SEND == 0:
