@@ -149,7 +149,9 @@ class TestAudioStateTransitions:
 
         assert iface._user_audio_active is False
         assert iface._user_audio_ended_time == 150.0
-        event_logger.log_audio_end.assert_called_once_with("simulated_user")
+        args, _ = event_logger.log_audio_end.call_args
+        assert args[0] == "simulated_user"
+        assert isinstance(args[1], float)
 
     @pytest.mark.asyncio
     async def test_assistant_end_records_timestamp(self):
